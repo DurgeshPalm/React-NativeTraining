@@ -35,6 +35,9 @@ export default function DashboardScreen() {
      <TouchableOpacity style={styles.button} onPress={() => router.push("../../signup")}>
       <Text style={[styles.buttonText]}>Signup</Text>
     </TouchableOpacity>
+    <TouchableOpacity style={styles.button} onPress={() => router.push("../../about")}>
+      <Text style={[styles.buttonText]}>ExpoMaps</Text>
+    </TouchableOpacity>
    <GoogleLoginButton />
     </>
       )}

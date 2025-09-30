@@ -3,6 +3,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import MapView, { Marker } from 'react-native-maps';
 
+
 const { width, height } = Dimensions.get("window");
 
 export default function UserDetail() {

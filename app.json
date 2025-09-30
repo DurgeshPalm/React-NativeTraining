@@ -17,6 +17,12 @@
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
+
+      },
+      "config":{
+        "googlemaps":{
+          "apiKey":"AIzaSyBYV7xf7gDYvtDzdKD_GHJm8H6SIeJup5k"
+        }
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
@@ -40,7 +46,7 @@
           }
         }
       ],
-      "expo-maps"
+      "expo-maps" 
     ],
     "experiments": {
       "typedRoutes": true,
