@@ -1,9 +1,9 @@
-// store/UserContext.tsx
 import React, { createContext, ReactNode, useContext, useState } from "react";
 
 type User = {
   name: string | null;
   email: string | null;
+  prpfilePictureUrl?: string | null;
 } | null;
 
 type UserContextType = {

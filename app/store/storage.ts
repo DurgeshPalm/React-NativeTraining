@@ -1,7 +1,6 @@
 // storage.ts
 import { MMKV } from 'react-native-mmkv';
 
-// Try to create MMKV instance, fallback to in-memory object if unavailable
 let storage: MMKV | null = null;
 const memoryStorage: Record<string, string> = {};
 

@@ -47,7 +47,7 @@ const [initialValues, setInitialValues] = useState({ name: '', email: '', passwo
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()} hitSlop={{top:10,bottom:10,left:10,right:10}}>
           <Ionicons name="arrow-back" size={24} color="#4cd137" />
         </TouchableOpacity>
       <Text style={styles.title}>Login</Text>
@@ -117,8 +117,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f6fa',
-    justifyContent: 'center',
-    alignItems: 'center',
+    // justifyContent: 'center',
+    // alignItems: 'center',
     padding: 20,
   },
   title: {
@@ -175,10 +175,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
    backButton: {
-    position: "absolute",
-    top: 40, 
-    left: 20,
-    zIndex: 10,
+    // position: "absolute",
+    marginTop:40,
+// flex:1
+    // top: 40, 
+    // left: 20,
+    // zIndex: 10,
   },
   iconContainer: {
   position: 'absolute',

@@ -1,28 +1,20 @@
 import { Stack } from "expo-router";
-import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from "react";
-import { UserProvider } from '../app/store/UserContext';
-import { ThemeProvider } from '../app/theme/ThemeContext';
-
-SplashScreen.setOptions({
-  duration: 1000,
-  fade: true,
-});
-
-SplashScreen.preventAutoHideAsync();
+import { UserProvider } from "../app/store/UserContext";
+import { useThemeStore } from "../app/store/themeStore";
 
 export default function RootLayout() {
+  const loadTheme = useThemeStore((state) => state.loadTheme);
 
-  useEffect(()=>{
-    SplashScreen.hide();
-  })
+  useEffect(() => {
+    loadTheme();
+  }, []);
+
   return (
-    <ThemeProvider>
     <UserProvider>
-    <Stack screenOptions={{ headerShown: false }}>
-         <Stack.Screen name="(home)"/>
-    </Stack>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(home)" />
+      </Stack>
     </UserProvider>
-    </ThemeProvider>
   );
 }
