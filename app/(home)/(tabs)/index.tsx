@@ -45,12 +45,7 @@ export default function DashboardScreen() {
           >
             <Text style={[styles.buttonText]}>Signup</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => router.push("../../about")}
-          >
-            <Text style={[styles.buttonText]}>ExpoMaps</Text>
-          </TouchableOpacity>
+
           <GoogleLoginButton />
         </>
       )}
@@ -60,6 +55,19 @@ export default function DashboardScreen() {
           <Text style={styles.buttonText}>Logout</Text>
         </TouchableOpacity>
       )}
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => router.push("../../about")}
+      >
+        <Text style={[styles.buttonText]}>ExpoMaps</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => router.push("../../todo")}
+      >
+        <Text style={[styles.buttonText]}>TodoList</Text>
+      </TouchableOpacity>
     </View>
   );
 }

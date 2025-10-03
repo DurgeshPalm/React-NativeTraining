@@ -52,7 +52,14 @@ const GoogleLoginButton = () => {
   };
 
   return (
-    <View>
+    <View
+      style={{
+        alignItems: "center",
+        marginVertical: 10,
+        // flex: 1,
+        justifyContent: "center",
+      }}
+    >
       <GoogleSigninButton
         style={{ width: 240, height: 50 }}
         size={GoogleSigninButton.Size.Wide}

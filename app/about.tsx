@@ -110,7 +110,7 @@ const AboutApp = () => {
   return (
     <View style={{ flex: 1 }}>
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <Ionicons name="arrow-back" size={24} color="#4cd137" />
+        <Ionicons name="arrow-back" size={28} color="#4cd137" />
       </TouchableOpacity>
       <View style={styles.searchContainer}>
         <TextInput
@@ -147,26 +147,19 @@ export default AboutApp;
 
 const styles = StyleSheet.create({
   mapContainer: {
-    marginTop: 20,
-    marginHorizontal: 20,
+    marginTop: 40,
+    marginHorizontal: 10,
     borderRadius: 15,
     overflow: "hidden",
   },
   backButton: {
-    position: "absolute",
-    top: 20,
-    left: 20,
-    zIndex: 10,
-    backgroundColor: "white",
-    padding: 6,
-    borderRadius: 20,
-    elevation: 4,
     marginLeft: 20,
+    marginTop: 40,
   },
   searchContainer: {
     position: "absolute",
-    top: 60,
-    left: 30,
+    top: 80,
+    left: 20,
     right: 20,
     backgroundColor: "white",
     flexDirection: "row",
