@@ -88,6 +88,7 @@ const App = () => {
           values,
           errors,
           touched,
+          resetForm,
         }) => (
           <>
             <LoginInput
@@ -117,7 +118,7 @@ const App = () => {
               secureTextEntry={!showPassword}
               value={values.password}
               onChangeText={handleChange("password")}
-              onBlur={() => handleBlur("password")} // Corrected
+              onBlur={() => handleBlur("password")}
               error={touched.password ? errors.password : undefined}
               isFocused={focusField.password}
               setIsFocused={(focus) =>
@@ -142,6 +143,14 @@ const App = () => {
               <Text style={styles.buttonText}>Login</Text>
             </TouchableOpacity>
             {/* <GoogleLoginButton /> */}
+            <TouchableOpacity
+              style={[styles.button]}
+              onPress={() =>
+                resetForm({ values: { name: "", email: "", password: "" } })
+              }
+            >
+              <Text style={[styles.buttonText]}>Reset</Text>
+            </TouchableOpacity>
           </>
         )}
       </Formik>

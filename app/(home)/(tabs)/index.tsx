@@ -1,26 +1,20 @@
+import LogoutButton from "@/components/LogoutButton";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import GoogleLoginButton from "../../../components/googlelogin";
 import { useUser } from "../../store/UserContext";
-import { useFriendsStore } from "../../store/friendsStore";
 import { useThemeStore } from "../../store/themeStore";
 
 export default function DashboardScreen() {
   const router = useRouter();
-  const { user, logout } = useUser();
+  const { user } = useUser();
   const { name, email } = useLocalSearchParams();
-  const { reset } = useFriendsStore();
   const theme = useThemeStore((state) => state.theme);
 
   const backgroundColor = theme == "light" ? "#2f3640" : "#f5f6fa";
   const textColor = theme === "light" ? "#f5f6fa" : "#2f3640";
   const subtitleColor = theme === "light" ? "#ccc" : "#666";
 
-  const handleLogout = () => {
-    reset();
-    logout();
-    router.push("/");
-  };
   return (
     <View style={[styles.container, { backgroundColor: backgroundColor }]}>
       <Text style={[styles.title, { color: textColor }]}>
@@ -50,11 +44,7 @@ export default function DashboardScreen() {
         </>
       )}
 
-      {(name || user?.name) && (
-        <TouchableOpacity style={styles.button} onPress={handleLogout}>
-          <Text style={styles.buttonText}>Logout</Text>
-        </TouchableOpacity>
-      )}
+      {(name || user?.name) && <LogoutButton />}
 
       <TouchableOpacity
         style={styles.button}

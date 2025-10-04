@@ -1,4 +1,4 @@
-// storage.ts
+
 import { MMKV } from 'react-native-mmkv';
 
 let storage: MMKV | null = null;
@@ -18,5 +18,13 @@ export const safeStorage = {
   getString: (key: string) => {
     if (storage) return storage.getString(key);
     else return memoryStorage[key] || null;
+  },
+  remove: (key: string) => {
+    if (storage) storage.delete(key);
+    else delete memoryStorage[key];
+  },
+    clear: () => {
+    if (storage) storage.clearAll();
+    else Object.keys(memoryStorage).forEach(k => delete memoryStorage[k]);
   },
 };

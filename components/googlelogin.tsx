@@ -3,12 +3,16 @@ import {
   GoogleSignin,
   GoogleSigninButton,
 } from "@react-native-google-signin/google-signin";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import { useUser } from "../app/store/UserContext";
+import { safeStorage } from "../app/store/storage";
+import Loader from "./Loader";
 
 const GoogleLoginButton = () => {
   const { setUser } = useUser();
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     async function init() {
       const hasPlayServices = await GoogleSignin.hasPlayServices();
@@ -25,6 +29,7 @@ const GoogleLoginButton = () => {
 
   const handleGoogleSignIn = async () => {
     try {
+      setLoading(true);
       await GoogleSignin.hasPlayServices({
         showPlayServicesUpdateDialog: true,
       });
@@ -45,9 +50,17 @@ const GoogleLoginButton = () => {
         email: userCredential?.user?.email,
         prpfilePictureUrl: userCredential?.user?.photoURL,
       });
+      safeStorage.set("name", userCredential?.user?.displayName || "");
+      safeStorage.set("email", userCredential?.user?.email || "");
+      safeStorage.set(
+        "profilePictureUrl",
+        userCredential?.user?.photoURL || ""
+      );
       console.log("✅ Signed in with Google:", userCredential.user);
     } catch (e: any) {
       console.log("❌ Google Sign-In error:", e.message || e);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -60,12 +73,19 @@ const GoogleLoginButton = () => {
         justifyContent: "center",
       }}
     >
-      <GoogleSigninButton
-        style={{ width: 240, height: 50 }}
-        size={GoogleSigninButton.Size.Wide}
-        color={GoogleSigninButton.Color.Dark}
-        onPress={handleGoogleSignIn}
-      />
+      {loading ? (
+        <Loader />
+      ) : (
+        <GoogleSigninButton
+          style={{
+            width: 240,
+            height: 50,
+          }}
+          size={GoogleSigninButton.Size.Wide}
+          color={GoogleSigninButton.Color.Dark}
+          onPress={handleGoogleSignIn}
+        />
+      )}
     </View>
   );
 };

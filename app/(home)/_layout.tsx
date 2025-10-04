@@ -1,10 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Drawer } from "expo-router/drawer";
-import { TouchableOpacity } from "react-native";
+import { Dimensions, TouchableOpacity } from "react-native";
+import CustomDrawerContent from "../../components/CustomDrawerContent";
 import { useThemeStore } from "../store/themeStore";
 
+const { width } = Dimensions.get("window");
+
 export default function HomeLayout() {
-  //  const { theme, toggleTheme } = useTheme();
   const theme = useThemeStore((state) => state.theme);
   const toggleTheme = useThemeStore((state) => state.toggleTheme);
   const renderThemeToggle = () => (
@@ -16,8 +18,10 @@ export default function HomeLayout() {
       />
     </TouchableOpacity>
   );
+
   return (
     <Drawer
+      drawerContent={(props) => <CustomDrawerContent {...props} />}
       screenOptions={{
         drawerActiveTintColor: "white",
         drawerActiveBackgroundColor: "#4cd137",
@@ -26,6 +30,9 @@ export default function HomeLayout() {
         },
         headerStyle: {
           backgroundColor: "#4cd137",
+        },
+        drawerStyle: {
+          width: width * 0.7,
         },
         headerRight: renderThemeToggle,
       }}

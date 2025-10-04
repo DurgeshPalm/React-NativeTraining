@@ -1,35 +1,42 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { create } from 'zustand';
+import { MMKV } from "react-native-mmkv";
+import { create } from "zustand";
 
-type Theme = 'light' | 'dark';
+type Theme = "light" | "dark";
 
 interface ThemeState {
   theme: Theme;
   setTheme: (theme: Theme) => void;
   toggleTheme: () => void;
-  loadTheme: () => Promise<void>;
+  loadTheme: () => void; 
 }
 
+const storage = new MMKV();
+
 export const useThemeStore = create<ThemeState>((set, get) => ({
-  theme: 'light',
+  theme: (storage.getString("theme") as Theme) || "light",
 
   setTheme: (theme: Theme) => {
     set({ theme });
-    AsyncStorage.setItem('theme', theme).catch(err => console.warn('save theme error', err));
+    try {
+      storage.set("theme", theme);
+    } catch (err) {
+      console.warn("save theme error", err);
+    }
   },
 
   toggleTheme: () => {
-    const next = get().theme === 'light' ? 'dark' : 'light';
-    set({ theme: next });
-    AsyncStorage.setItem('theme', next).catch(err => console.warn('save theme error', err));
+    const next = get().theme === "light" ? "dark" : "light";
+    get().setTheme(next); 
   },
 
-  loadTheme: async () => {
+  loadTheme: () => {
     try {
-      const saved = await AsyncStorage.getItem('theme');
-      if (saved === 'light' || saved === 'dark') set({ theme: saved });
+      const saved = storage.getString("theme");
+      if (saved === "light" || saved === "dark") {
+        set({ theme: saved });
+      }
     } catch (err) {
-      console.warn('load theme error', err);
+      console.warn("load theme error", err);
     }
   },
 }));

@@ -1,4 +1,11 @@
-import React, { createContext, ReactNode, useContext, useState } from "react";
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import { safeStorage } from "./storage";
 
 type User = {
   name: string | null;
@@ -17,7 +24,21 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User>(null);
 
-  const logout = () => setUser(null);
+  useEffect(() => {
+    const loadUser = async () => {
+      const userName = safeStorage.getString("name") ?? null;
+      const userEmail = safeStorage.getString("email") ?? null;
+      if (userName) {
+        setUser({ name: userName, email: userEmail });
+      }
+    };
+    loadUser();
+  }, []);
+
+  const logout = () => {
+    setUser(null);
+    safeStorage.clear();
+  };
 
   return (
     <UserContext.Provider value={{ user, setUser, logout }}>

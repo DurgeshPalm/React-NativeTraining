@@ -1,7 +1,14 @@
-import axios from 'axios';
-import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import axios from "axios";
+import { useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import Loader from "../../components/Loader";
 
 const GetUsers = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -12,17 +19,19 @@ const GetUsers = () => {
 
   const getUsers = async () => {
     try {
-      const response = await axios.get('https://jsonplaceholder.typicode.com/users');
+      const response = await axios.get(
+        "https://jsonplaceholder.typicode.com/users"
+      );
       setUsers(response.data);
     } catch (e) {
       console.log(e);
     }
   };
 
-  if (users.length === 0 ) {
+  if (users.length === 0) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#4cd137" />
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Loader />
       </View>
     );
   }
@@ -35,7 +44,15 @@ const GetUsers = () => {
         renderItem={({ item }) => (
           <View style={styles.friendRow}>
             <Text style={styles.friendName}>{item.username}</Text>
-            <TouchableOpacity style={styles.button} onPress={() =>router.push({pathname: "/userdetail", params: { user: JSON.stringify(item) },})}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() =>
+                router.push({
+                  pathname: "/userdetail",
+                  params: { user: JSON.stringify(item) },
+                })
+              }
+            >
               <Text style={styles.buttonText}>GetDetail</Text>
             </TouchableOpacity>
           </View>
@@ -59,14 +76,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   buttonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   friendRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center", 
+    alignItems: "center",
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderColor: "#eee",
