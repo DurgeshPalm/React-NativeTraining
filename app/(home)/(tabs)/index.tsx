@@ -41,23 +41,34 @@ export default function DashboardScreen() {
           </TouchableOpacity>
 
           <GoogleLoginButton />
+          {/* <EmailSignIn /> */}
         </>
       )}
 
       {(name || user?.name) && <LogoutButton />}
-
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => router.push("../../about")}
-      >
-        <Text style={[styles.buttonText]}>ExpoMaps</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => router.push("../../todo")}
-      >
-        <Text style={[styles.buttonText]}>TodoList</Text>
-      </TouchableOpacity>
+      <View style={styles.section}>
+        <Text style={[styles.sectionTitle, { color: textColor }]}>
+          Explore Features
+        </Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => router.push("../../about")}
+        >
+          <Text style={[styles.buttonText]}>ExpoMaps</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => router.push("../../mapclustering")}
+        >
+          <Text style={[styles.buttonText]}>ReactNativeMaps</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => router.push("../../todo")}
+        >
+          <Text style={[styles.buttonText]}>TodoList</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -104,5 +115,18 @@ const styles = StyleSheet.create({
   },
   loginButtonText: {
     color: "#000000",
+  },
+  section: {
+    width: "100%",
+    marginTop: 10,
+    paddingTop: 20,
+    borderTopWidth: 1,
+    borderColor: "#ddd",
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    marginBottom: 15,
+    textAlign: "center",
   },
 });

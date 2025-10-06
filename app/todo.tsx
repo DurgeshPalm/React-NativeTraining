@@ -1,3 +1,4 @@
+import Loader from "@/components/Loader";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import {
@@ -41,6 +42,7 @@ export default function TodoApp() {
     });
     return () => unsubscribe();
   }, []);
+  console.log(todos);
 
   const addTodo = async () => {
     if (text.trim() === "") return;
@@ -127,6 +129,14 @@ export default function TodoApp() {
         )}
         showsVerticalScrollIndicator={false}
       />
+
+      {todos.length === 0 && (
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <Loader />
+        </View>
+      )}
     </View>
   );
 }

@@ -1,8 +1,13 @@
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import MapView, { Marker } from 'react-native-maps';
-
+import {
+  Dimensions,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import MapView, { Marker } from "react-native-maps";
 
 const { width, height } = Dimensions.get("window");
 
@@ -10,14 +15,21 @@ export default function UserDetail() {
   const { user } = useLocalSearchParams();
   const parsedUser = JSON.parse(user as any);
   const router = useRouter();
-  const latitude = parsedUser?.address?.geo?.lat? parseFloat(parsedUser.address.geo.lat) : 21.20101714481972;
-  const longitude = parsedUser?.address?.geo?.lng ? parseFloat(parsedUser.address.geo.lng)  : 72.79291918286205;
-  console.log(latitude,longitude);
-  
+  const latitude = parsedUser?.address?.geo?.lat
+    ? parseFloat(parsedUser.address.geo.lat)
+    : 21.20101714481972;
+  const longitude = parsedUser?.address?.geo?.lng
+    ? parseFloat(parsedUser.address.geo.lng)
+    : 72.79291918286205;
+  console.log(latitude, longitude);
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
 
@@ -51,28 +63,29 @@ export default function UserDetail() {
           <Text style={styles.text}>{parsedUser.email}</Text>
         </View>
 
-       <View style={styles.row}>
+        <View style={styles.row}>
           <Ionicons name="location-outline" size={20} color="#4cd137" />
-          <Text style={styles.infoText}>{parsedUser?.address.zipcode || "Zip Code"}</Text>
+          <Text style={styles.infoText}>
+            {parsedUser?.address.zipcode || "Zip Code"}
+          </Text>
         </View>
       </View>
-    <View style={styles.mapContainer}>
-    <MapView
-      style={styles.map}
-      initialRegion={{
-        latitude,
-        longitude,
-        latitudeDelta: 0.05,  
-        longitudeDelta: 0.05,
-      }}
-    >
-      <Marker 
-        coordinate={{ latitude, longitude }} 
-        title={parsedUser?.name} 
-      />
-    </MapView>
-  </View>
-
+      <View style={styles.mapContainer}>
+        <MapView
+          style={styles.map}
+          initialRegion={{
+            latitude,
+            longitude,
+            latitudeDelta: 0.05,
+            longitudeDelta: 0.05,
+          }}
+        >
+          <Marker
+            coordinate={{ latitude, longitude }}
+            title={parsedUser?.name}
+          />
+        </MapView>
+      </View>
     </View>
   );
 }
@@ -124,5 +137,4 @@ const styles = StyleSheet.create({
     height: height * 0.25,
   },
   map: { width: "100%", height: "100%" },
-  
 });

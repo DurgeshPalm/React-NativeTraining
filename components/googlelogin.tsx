@@ -1,4 +1,8 @@
-import auth from "@react-native-firebase/auth";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithCredential,
+} from "@react-native-firebase/auth";
 import {
   GoogleSignin,
   GoogleSigninButton,
@@ -40,8 +44,10 @@ const GoogleLoginButton = () => {
 
       if (!idToken) throw new Error("No ID token returned");
 
-      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-      const userCredential = await auth().signInWithCredential(
+      const authInstance = getAuth();
+      const googleCredential = GoogleAuthProvider.credential(idToken);
+      const userCredential = await signInWithCredential(
+        authInstance,
         googleCredential
       );
 
@@ -56,7 +62,7 @@ const GoogleLoginButton = () => {
         "profilePictureUrl",
         userCredential?.user?.photoURL || ""
       );
-      console.log("✅ Signed in with Google:", userCredential.user);
+      // console.log("✅ Signed in with Google:", userCredential.user);
     } catch (e: any) {
       console.log("❌ Google Sign-In error:", e.message || e);
     } finally {

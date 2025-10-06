@@ -45,7 +45,7 @@ export default function FriendsTab() {
         onPress={() => handleAddFriend()}
         disabled={!user?.name}
       >
-        <Text style={styles.buttonText}>AddFriends</Text>
+        <Text style={styles.buttonText}>AddFriend</Text>
       </TouchableOpacity>
       <FlatList
         data={friends}
