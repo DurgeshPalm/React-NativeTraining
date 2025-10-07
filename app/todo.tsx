@@ -42,7 +42,7 @@ export default function TodoApp() {
     });
     return () => unsubscribe();
   }, []);
-  console.log(todos);
+  // console.log(todos);
 
   const addTodo = async () => {
     if (text.trim() === "") return;
