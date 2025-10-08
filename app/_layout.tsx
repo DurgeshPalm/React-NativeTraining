@@ -8,37 +8,29 @@ import { UserProvider } from "../app/store/UserContext";
 
 const queryClient = new QueryClient();
 
-const linking = {
-  prefixes: [Linking.createURL("/"), "newapp://"],
-  config: {
-    screens: {
-      login: "login",
-      signup: "signup",
-      about: "about",
-      todo: "todo",
-      userdetail: "userdetail",
-      productdetail: "productdetail",
-      "(home)": {
-        screens: {
-          "(tabs)": {
-            screens: {
-              index: "",
-              feed: "feed",
-              friends: "friends",
-              profile: "profile",
-            },
-          },
-          settings: "settings",
-          products: "products",
-          getusers: "getusers",
-        },
-      },
-    },
-  },
-};
-
 export default function RootLayout() {
   const router = useRouter();
+
+  useEffect(() => {
+    const handleDeepLink = (event: { url: string } | string) => {
+      const url = typeof event === "string" ? event : event.url;
+      const data = Linking.parse(url);
+      console.log("🌐 Dynamic Link Data:", data);
+
+      // if (data.path === "signup") {
+      //   router.push("/signup");
+      // }
+    };
+
+    const subscription = Linking.addEventListener("url", handleDeepLink);
+
+    Linking.getInitialURL().then((url) => {
+      if (url) handleDeepLink(url);
+    });
+
+    return () => subscription.remove();
+  }, []);
+
   useEffect(() => {
     const requestPermission = async () => {
       const authStatus = await messaging().requestPermission();

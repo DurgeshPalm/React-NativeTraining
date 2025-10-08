@@ -1,3 +1,4 @@
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -11,6 +12,10 @@ export default function LogoutButton() {
   const [modalVisible, setModalVisible] = useState(false);
 
   const handleLogoutConfirm = () => {
+    const currentUser = GoogleSignin.getCurrentUser();
+    if (currentUser) {
+      GoogleSignin.signOut();
+    }
     reset();
     logout();
     setModalVisible(false);

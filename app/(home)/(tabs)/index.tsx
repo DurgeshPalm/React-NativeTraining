@@ -31,18 +31,16 @@ export default function DashboardScreen() {
             style={[styles.button]}
             onPress={() => router.push("../../login")}
           >
-            <Text style={[styles.buttonText]}>Login</Text>
+            <Text style={[styles.buttonText]}>Go To Login</Text>
           </TouchableOpacity>
+          <GoogleLoginButton />
+
           <TouchableOpacity
             style={styles.button}
             onPress={() => router.push("../../signup")}
           >
             <Text style={[styles.buttonText]}>Signup</Text>
           </TouchableOpacity>
-
-          <GoogleLoginButton />
-          {/* <GoogleLoginButtonExpo /> */}
-          {/* <EmailSignIn /> */}
         </>
       )}
 

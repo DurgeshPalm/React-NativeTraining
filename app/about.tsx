@@ -2,11 +2,14 @@ import { Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import { GoogleMaps } from "expo-maps";
 import { useRouter } from "expo-router";
+import * as TaskManager from "expo-task-manager";
 import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import { showMessage } from "react-native-flash-message";
+import { LOCATION_TASK_NAME } from "./background-location-task";
 
 const GOOGLE_API_KEY = "AIzaSyBYV7xf7gDYvtDzdKD_GHJm8H6SIeJup5k";
+
 const AboutApp = () => {
   const router = useRouter();
   const mapRef = useRef(null);
@@ -18,59 +21,100 @@ const AboutApp = () => {
     zoom: 13,
   });
 
-  useEffect(() => {
-    const getUserLocation = async () => {
-      try {
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== "granted") {
-          showMessage({
-            message: "Location permission denied",
-            type: "danger",
-          });
-          return;
-        }
-
-        const currentLocation = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Balanced,
-        });
-        console.log("currentLocation: ", currentLocation);
-
-        let location = currentLocation;
-        if (!currentLocation) {
-          const lastLocation = await Location.getLastKnownPositionAsync();
-          if (!lastLocation) {
-            throw new Error("Unable to fetch location");
-          }
-          location = lastLocation;
-        }
-
-        const { latitude, longitude } = location.coords;
-        setCameraPosition({
-          coordinates: { latitude, longitude },
-          zoom: 14,
-        });
-
-        const address = await Location.reverseGeocodeAsync({
-          latitude,
-          longitude,
-        });
-
-        if (address.length > 0) {
-          const { city, region } = address[0];
-          setUserAddress(`${city}, ${region}`);
-          console.log(address);
-        }
-      } catch (error) {
-        console.log("Location error:", error);
+  // ✅ Get User’s Current Location
+  const getUserLocation = async () => {
+    try {
+      const { status: foregroundStatus } =
+        await Location.requestForegroundPermissionsAsync();
+      if (foregroundStatus !== "granted") {
         showMessage({
-          message: "Failed to get location",
+          message: "Location permission denied",
           type: "danger",
         });
+        return;
       }
-    };
 
+      const currentLocation = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.High,
+      });
+
+      const { latitude, longitude } = currentLocation.coords;
+
+      const address = await Location.reverseGeocodeAsync({
+        latitude,
+        longitude,
+      });
+
+      if (address.length > 0) {
+        const { city, region } = address[0];
+        setUserAddress(`${city || ""}, ${region || ""}`);
+        console.log(" Address:", address);
+      }
+
+      // Move map camera to user location
+      setCameraPosition({
+        coordinates: { latitude, longitude },
+        zoom: 15,
+      });
+    } catch (error) {
+      console.log("❌ Location error:", error);
+      showMessage({
+        message: "Failed to get location",
+        type: "danger",
+      });
+    }
+  };
+
+  // ✅ Start Background Tracking
+  const startBackgroundTracking = async () => {
+    const { status: foregroundStatus } =
+      await Location.requestForegroundPermissionsAsync();
+
+    if (foregroundStatus !== "granted") {
+      showMessage({
+        message: "Location permission denied",
+        type: "danger",
+      });
+      return;
+    }
+
+    const { status: backgroundStatus } =
+      await Location.requestBackgroundPermissionsAsync();
+
+    if (backgroundStatus !== "granted") {
+      showMessage({
+        message: "Background location permission denied",
+        type: "danger",
+      });
+      return;
+    }
+
+    const isTaskDefined = TaskManager.isTaskDefined(LOCATION_TASK_NAME);
+    const hasStarted = await Location.hasStartedLocationUpdatesAsync(
+      LOCATION_TASK_NAME
+    );
+
+    if (!hasStarted && isTaskDefined) {
+      await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
+        accuracy: Location.Accuracy.Highest,
+        distanceInterval: 50, // meters
+        timeInterval: 10000, // milliseconds
+        pausesUpdatesAutomatically: false,
+        foregroundService: {
+          notificationTitle: "Tracking your location",
+          notificationBody: "We are getting your location in background.",
+          notificationColor: "#4cd137",
+        },
+      });
+      console.log("✅ Background location tracking started");
+    }
+  };
+
+  useEffect(() => {
     getUserLocation();
+    startBackgroundTracking();
   }, []);
+
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
     console.log("Searching for:", searchQuery);
@@ -81,13 +125,9 @@ const AboutApp = () => {
           searchQuery
         )}&key=${GOOGLE_API_KEY}`
       );
-
       const data = await response.json();
-      console.log("Search data:", data);
-
       if (data.results && data.results.length > 0) {
         const { lat, lng } = data.results[0].geometry.location;
-
         setCameraPosition({
           coordinates: { latitude: lat, longitude: lng },
           zoom: 14,
@@ -112,6 +152,7 @@ const AboutApp = () => {
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
         <Ionicons name="arrow-back" size={28} color="#4cd137" />
       </TouchableOpacity>
+
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
@@ -134,7 +175,7 @@ const AboutApp = () => {
           markers={[
             {
               coordinates: cameraPosition.coordinates,
-              title: "Selected Place",
+              title: userAddress || "Your Location",
             },
           ]}
         />

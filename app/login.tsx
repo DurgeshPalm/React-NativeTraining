@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import * as Yup from "yup";
 import LoginInput from "../components/LoginInput";
+import handleEmailAuth from "../components/emailsignin";
 import { useUser } from "./store/UserContext";
 import { safeStorage } from "./store/storage";
 
@@ -68,6 +69,8 @@ const App = () => {
         initialValues={initialValues}
         enableReinitialize={true}
         validationSchema={LoginSchema}
+        validateOnChange={true}
+        validateOnBlur={true}
         onSubmit={(values, { resetForm }) => {
           safeStorage.set("name", values.name);
           safeStorage.set("email", values.email);
@@ -89,6 +92,7 @@ const App = () => {
           errors,
           touched,
           resetForm,
+          validateOnChange,
         }) => (
           <>
             <LoginInput
@@ -142,7 +146,24 @@ const App = () => {
             >
               <Text style={styles.buttonText}>Login</Text>
             </TouchableOpacity>
-            {/* <GoogleLoginButton /> */}
+
+            <TouchableOpacity
+              style={[styles.button, { backgroundColor: "#4cd137" }]}
+              onPress={async () => {
+                try {
+                  handleSubmit();
+                  await handleEmailAuth(values.email, values.password, setUser);
+                  console.log("✅ Auth successful!");
+
+                  router.push("/");
+                } catch (err: any) {
+                  console.log("❌ Error:", err.message);
+                  alert(err.message);
+                }
+              }}
+            >
+              <Text style={styles.buttonText}>Sign In with Email</Text>
+            </TouchableOpacity>
             <TouchableOpacity
               style={[styles.button]}
               onPress={() =>
