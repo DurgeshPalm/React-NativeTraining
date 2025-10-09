@@ -235,7 +235,7 @@ export default function SignupScreen() {
                           style={styles.dropdown}
                           dropDownContainerStyle={styles.dropdownContainer}
                           textStyle={{ color: "#fff" }}
-                          zIndex={1000} // ✅ fixes ScrollView conflict
+                          zIndex={1000}
                         />
                       </View>
 
