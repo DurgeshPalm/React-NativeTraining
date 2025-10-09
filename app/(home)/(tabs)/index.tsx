@@ -67,6 +67,12 @@ export default function DashboardScreen() {
         >
           <Text style={[styles.buttonText]}>TodoList</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => router.push("../../minomp/signup")}
+        >
+          <Text style={[styles.buttonText]}>SignupTominomp</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );

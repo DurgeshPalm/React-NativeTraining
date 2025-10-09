@@ -65,7 +65,6 @@ const AboutApp = () => {
     }
   };
 
-  // ✅ Start Background Tracking
   const startBackgroundTracking = async () => {
     const { status: foregroundStatus } =
       await Location.requestForegroundPermissionsAsync();
