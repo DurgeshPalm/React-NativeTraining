@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import * as Yup from "yup";
+import { useSignupStore } from "../store/minomp_signup";
 
 interface CountryCode {
   id: number;
@@ -24,13 +25,14 @@ interface CountryCode {
 export default function SignupScreen() {
   const [loading, setLoading] = useState(false);
   const [signupType, setSignupType] = useState<"email" | "mobile">("email");
-  // Dropdown state
   const [open, setOpen] = useState(false);
   const [selectedCode, setSelectedCode] = useState<number | null>(null);
   const [countryCodes, setCountryCodes] = useState<
     { label: string; value: number }[]
   >([]);
+
   const router = useRouter();
+  const { setSignupData } = useSignupStore();
 
   useEffect(() => {
     const fetchCountryCodes = async () => {
@@ -40,11 +42,10 @@ export default function SignupScreen() {
         );
         if (res.data?.data) {
           const formatted = res.data.data.map((item: CountryCode) => ({
-            label: item.country_code,
+            label: `${item.country_code} (${item.country_name})`,
             value: item.id,
           }));
           setCountryCodes(formatted);
-          console.log("Country codes fetched:", formatted);
         }
       } catch (error) {
         console.log("Country code fetch error:", error);
@@ -53,7 +54,6 @@ export default function SignupScreen() {
     fetchCountryCodes();
   }, []);
 
-  // ✅ Validation Schema
   const SignupSchema = Yup.object().shape({
     name: Yup.string().required("Name is required"),
     email:
@@ -74,33 +74,6 @@ export default function SignupScreen() {
       .required("Confirm password is required"),
   });
 
-  // ✅ Submit Handler
-  const handleSignup = async (values: any) => {
-    try {
-      setLoading(true);
-      const payload = {
-        name: values.name,
-        email: signupType === "email" ? values.email : "",
-        password: values.password,
-        mobileno: signupType === "mobile" ? values.mobileno : "",
-        country_code_id: signupType === "mobile" ? selectedCode || "" : "",
-        role: "C",
-        connectionid: "2",
-      };
-
-      const response = await axios.post(
-        "http://192.168.29.138:3367/users/createUser",
-        payload
-      );
-      alert(response.data.message || "User created successfully!");
-    } catch (error) {
-      console.error("Signup Error:", error);
-      alert("Something went wrong!");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <View style={{ flex: 1, backgroundColor: "#f9f9f9" }}>
       <KeyboardAvoidingView
@@ -110,7 +83,7 @@ export default function SignupScreen() {
         <View style={styles.card}>
           <Text style={styles.title}>Signup</Text>
 
-          {/* Toggle buttons */}
+          {/* Toggle between Mobile/Email signup */}
           <View style={styles.toggleContainer}>
             <TouchableOpacity
               style={[
@@ -147,7 +120,7 @@ export default function SignupScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Formik */}
+          {/* ✅ Formik Form */}
           <Formik
             initialValues={{
               name: "",
@@ -157,28 +130,19 @@ export default function SignupScreen() {
               confirmPassword: "",
             }}
             validationSchema={SignupSchema}
-            onSubmit={async (values, { resetForm }) => {
+            onSubmit={(values, { resetForm }) => {
               const payload = {
                 name: values.name,
                 email: signupType === "email" ? values.email : "",
                 password: values.password,
                 mobileno: signupType === "mobile" ? values.mobileno : "",
                 country_code_id:
-                  signupType === "mobile" ? selectedCode || "" : "",
-                role: "C",
-                connectionid: "2",
+                  signupType === "mobile" ? Number(selectedCode) || 0 : 0,
+                signupType,
               };
-              router.push({
-                pathname: "./selectrole",
-                params: {
-                  name: values.name,
-                  email: signupType === "email" ? values.email : "",
-                  password: values.password,
-                  mobileno: signupType === "mobile" ? values.mobileno : "",
-                  selectedCode: String(selectedCode || ""), // ensure string
-                  signupType: signupType, // 'email' or 'mobile'
-                },
-              });
+              setSignupData(payload);
+              router.push("./selectrole");
+
               resetForm();
             }}
           >
@@ -189,9 +153,9 @@ export default function SignupScreen() {
               values,
               errors,
               touched,
-              resetForm,
             }) => (
               <>
+                {/* Name */}
                 <TextInput
                   style={styles.input}
                   placeholder="Name"
@@ -204,6 +168,7 @@ export default function SignupScreen() {
                   <Text style={styles.errorText}>{errors.name}</Text>
                 )}
 
+                {/* Conditional Email/Mobile */}
                 {signupType === "email" ? (
                   <>
                     <TextInput
@@ -221,7 +186,6 @@ export default function SignupScreen() {
                   </>
                 ) : (
                   <>
-                    {/* Country code + Mobile number in same row */}
                     <View style={styles.row}>
                       <View style={{ flex: 1 }}>
                         <DropDownPicker
@@ -231,7 +195,7 @@ export default function SignupScreen() {
                           setOpen={setOpen}
                           setValue={setSelectedCode}
                           setItems={setCountryCodes}
-                          placeholder="C"
+                          placeholder="Code"
                           style={styles.dropdown}
                           dropDownContainerStyle={styles.dropdownContainer}
                           textStyle={{ color: "#fff" }}
@@ -256,6 +220,7 @@ export default function SignupScreen() {
                   </>
                 )}
 
+                {/* Password Fields */}
                 <TextInput
                   style={styles.input}
                   placeholder="Password"
@@ -282,22 +247,18 @@ export default function SignupScreen() {
                   <Text style={styles.errorText}>{errors.confirmPassword}</Text>
                 )}
 
+                {/* Signup Button */}
                 <TouchableOpacity
                   style={[styles.signupButton, loading && { opacity: 0.6 }]}
-                  onPress={handleSubmit}
+                  onPress={handleSubmit as any}
                   disabled={loading}
                 >
                   {loading ? (
                     <ActivityIndicator color="#fff" />
                   ) : (
-                    <Text style={styles.signupText}>SIGNUP</Text>
+                    <Text style={styles.signupText}>NEXT</Text>
                   )}
                 </TouchableOpacity>
-
-                <Text style={styles.footerText}>
-                  Already have an account?{" "}
-                  <Text style={styles.loginText}>Login</Text>
-                </Text>
               </>
             )}
           </Formik>
@@ -308,26 +269,15 @@ export default function SignupScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f9f9f9",
-  },
+  container: { flex: 1, justifyContent: "center", alignItems: "center" },
   card: {
     width: "85%",
     backgroundColor: "#A15CFF",
     borderRadius: 20,
     padding: 25,
     alignItems: "center",
-    elevation: 5,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#fff",
-    marginBottom: 20,
-  },
+  title: { fontSize: 28, fontWeight: "bold", color: "#fff", marginBottom: 20 },
   toggleContainer: {
     flexDirection: "row",
     backgroundColor: "#fff",
@@ -340,16 +290,9 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     alignItems: "center",
   },
-  toggleButtonActive: {
-    backgroundColor: "#00EAD3",
-  },
-  toggleText: {
-    color: "#000",
-    fontWeight: "bold",
-  },
-  toggleTextActive: {
-    color: "#fff",
-  },
+  toggleButtonActive: { backgroundColor: "#00EAD3" },
+  toggleText: { color: "#000", fontWeight: "bold" },
+  toggleTextActive: { color: "#fff" },
   input: {
     backgroundColor: "#C08FFF",
     width: "100%",
@@ -358,23 +301,14 @@ const styles = StyleSheet.create({
     color: "#fff",
     marginVertical: 6,
   },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    width: "100%",
-  },
+  row: { flexDirection: "row", alignItems: "center", width: "100%" },
   dropdown: {
     backgroundColor: "#C08FFF",
     borderColor: "#C08FFF",
     borderRadius: 10,
-    width: 50,
     height: 50,
-    justifyContent: "center",
   },
-  dropdownContainer: {
-    backgroundColor: "#C08FFF",
-    borderColor: "#C08FFF",
-  },
+  dropdownContainer: { backgroundColor: "#C08FFF", borderColor: "#C08FFF" },
   signupButton: {
     backgroundColor: "#00EAD3",
     borderRadius: 10,
@@ -383,22 +317,6 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
   },
-  signupText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-  footerText: {
-    color: "#fff",
-    marginTop: 15,
-  },
-  loginText: {
-    color: "#00EAD3",
-    fontWeight: "bold",
-  },
-  errorText: {
-    color: "red",
-    alignSelf: "flex-start",
-    marginBottom: 4,
-  },
+  signupText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
+  errorText: { color: "red", alignSelf: "flex-start", marginBottom: 4 },
 });

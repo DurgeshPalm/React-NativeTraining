@@ -1,5 +1,4 @@
-import axios from "axios";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   Alert,
@@ -9,78 +8,23 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSignupStore } from "../store/minomp_signup";
 
 export default function SelectRoleScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams();
+  const { setSignupData } = useSignupStore();
   const [selectedRole, setSelectedRole] = useState<"C" | "P" | null>(null);
-  const [loading, setLoading] = useState(false);
 
-  console.log(params);
-  const handleSignup = async (values: any) => {
-    try {
-      setLoading(true);
-      console.log("values to API", values);
-
-      const payload = {
-        name: values.name,
-        email: values.signupType === "email" ? values.email : "",
-        password: values.password,
-        mobileno: values.signupType === "mobile" ? values.mobileno : "",
-        country_code_id:
-          values.signupType === "mobile" ? Number(values.selectedCode) || 0 : 0,
-        role: values.role,
-        connectionid: "2",
-      };
-
-      const response = await axios.post(
-        "http://192.168.29.138:3367/users/createUser",
-        payload
-      );
-
-      const { resp_code, message, token, userId, role } = response.data;
-
-      if (resp_code === "000") {
-        Alert.alert("Success", message || "User created successfully!", [
-          {
-            text: "OK",
-            onPress: () => {
-              router.replace("/login");
-            },
-          },
-        ]);
-      } else {
-        Alert.alert("Error", message || "Signup failed, please try again.");
-      }
-    } catch (error: any) {
-      console.error("Signup Error:", error);
-      Alert.alert(
-        "Error",
-        error?.response?.data?.message || "Something went wrong!"
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleNext = async () => {
+  const handleNext = () => {
     if (!selectedRole) {
       Alert.alert("Select Role", "Please select your role before continuing");
-      router.push("/");
+      return;
     }
 
-    const valuess = {
-      name: params.name,
-      email: params.email,
-      password: params.password,
-      mobileno: params.mobileno,
-      country_code_id: params.country_code_id,
-      selectedCode: params.selectedCode,
-      signupType: params.signupType,
-      role: selectedRole,
-    };
+    setSignupData({ role: selectedRole });
 
-    await handleSignup(valuess);
+    // ✅ Redirect to find parent/child screen
+    router.push("./FindParentChildScreen");
   };
 
   return (
@@ -88,14 +32,13 @@ export default function SelectRoleScreen() {
       <View style={styles.card}>
         <Text style={styles.title}>I’m a...</Text>
 
-        {/* Kid Section */}
+        {/* Kid */}
         <TouchableOpacity
           style={[
             styles.roleBox,
             selectedRole === "C" && styles.roleBoxSelected,
           ]}
           onPress={() => setSelectedRole("C")}
-          activeOpacity={0.8}
         >
           <Image
             source={require("../../assets/kid.png")}
@@ -105,14 +48,13 @@ export default function SelectRoleScreen() {
           <Text style={styles.roleText}>Kid</Text>
         </TouchableOpacity>
 
-        {/* Parent Section */}
+        {/* Parent */}
         <TouchableOpacity
           style={[
             styles.roleBox,
             selectedRole === "P" && styles.roleBoxSelected,
           ]}
           onPress={() => setSelectedRole("P")}
-          activeOpacity={0.8}
         >
           <Image
             source={require("../../assets/parent.png")}
@@ -122,15 +64,13 @@ export default function SelectRoleScreen() {
           <Text style={styles.roleText}>Parent</Text>
         </TouchableOpacity>
 
-        {/* Next Button */}
+        {/* Next */}
         <TouchableOpacity
           style={[styles.nextButton, !selectedRole && { opacity: 0.6 }]}
-          disabled={!selectedRole || loading}
+          disabled={!selectedRole}
           onPress={handleNext}
         >
-          <Text style={styles.nextText}>
-            {loading ? "Creating Account..." : "NEXT"}
-          </Text>
+          <Text style={styles.nextText}>NEXT</Text>
         </TouchableOpacity>
       </View>
     </View>
