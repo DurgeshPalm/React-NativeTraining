@@ -76,7 +76,7 @@ export default function FindParentChildScreen() {
       if (data?.resp_code === "000") {
         showAlert("Success", "Account created successfully!");
         resetSignupData();
-        router.replace("/"); // ✅ using replace so user can't go back
+        router.replace("/");
       } else {
         showAlert("Error", data?.resp_message || "Signup failed");
       }
@@ -87,7 +87,6 @@ export default function FindParentChildScreen() {
     },
   });
 
-  // 🔹 Handle search button
   const handleSearch = () => {
     if (!searchText.trim()) {
       showAlert("Enter Details", "Please enter name, email, or mobile.");
@@ -109,7 +108,6 @@ export default function FindParentChildScreen() {
         {role === "C" ? "FIND PARENT" : "FIND CHILD"}
       </Text>
 
-      {/* 🔍 Search Input */}
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.input}
@@ -129,7 +127,6 @@ export default function FindParentChildScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* 👤 Found User Card */}
       {foundUser && (
         <View style={styles.resultCard}>
           <Text style={styles.resultName}>{foundUser.username}</Text>
@@ -137,7 +134,6 @@ export default function FindParentChildScreen() {
         </View>
       )}
 
-      {/* ⚙️ Buttons */}
       <View style={styles.buttonRow}>
         <TouchableOpacity
           style={[styles.skipButton, isLoading && { opacity: 0.6 }]}
@@ -164,7 +160,6 @@ export default function FindParentChildScreen() {
   );
 }
 
-// 🎨 Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,

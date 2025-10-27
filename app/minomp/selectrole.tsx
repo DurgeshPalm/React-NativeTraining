@@ -23,7 +23,6 @@ export default function SelectRoleScreen() {
 
     setSignupData({ role: selectedRole });
 
-    // ✅ Redirect to find parent/child screen
     router.push("./FindParentChildScreen");
   };
 
@@ -77,7 +76,6 @@ export default function SelectRoleScreen() {
   );
 }
 
-// ✅ Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,

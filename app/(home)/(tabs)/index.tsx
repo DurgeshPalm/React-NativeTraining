@@ -89,7 +89,13 @@ export default function DashboardScreen() {
             style={styles.button}
             onPress={stopBackgroundUpdate}
           >
-            <Text style={[styles.buttonText]}>stopBackgroudr</Text>
+            <Text style={[styles.buttonText]}>stopBackgroud</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => router.push("../../NotificationPage")}
+          >
+            <Text style={[styles.buttonText]}>Notification</Text>
           </TouchableOpacity>
         </View>
       </View>

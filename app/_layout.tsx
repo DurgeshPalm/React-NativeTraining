@@ -5,6 +5,7 @@ import { Stack, useRouter } from "expo-router";
 import React, { useEffect } from "react";
 import { Alert } from "react-native";
 import { UserProvider } from "../app/store/UserContext";
+import { safeStorage } from "./store/storage";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ export default function RootLayout() {
         console.log("Authorization status:", authStatus);
 
         const fcmToken = await messaging().getToken();
+        safeStorage.set("fcmToken", fcmToken);
         console.log("FCM Token:", fcmToken);
         // Optionally send token to your server
       }
@@ -90,6 +92,7 @@ export default function RootLayout() {
       unsubscribeBackground();
     };
   }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <UserProvider>

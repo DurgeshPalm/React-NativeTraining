@@ -18,7 +18,7 @@ export const useFriendsStore = create<FriendsState>((set) => ({
     set((state) => ({
       friends: [
         ...state.friends,
-        { id: Date.now(), name }, // unique id from timestamp
+        { id: Date.now(), name }, 
       ],
     })),
   removeFriend: (id) =>

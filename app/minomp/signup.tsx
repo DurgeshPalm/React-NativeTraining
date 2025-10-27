@@ -1,7 +1,7 @@
-import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { Formik } from "formik";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import * as Yup from "yup";
+import api from "../fetchapi";
 import { useSignupStore } from "../store/minomp_signup";
 
 interface CountryCode {
@@ -23,36 +24,29 @@ interface CountryCode {
 }
 
 export default function SignupScreen() {
-  const [loading, setLoading] = useState(false);
   const [signupType, setSignupType] = useState<"email" | "mobile">("email");
   const [open, setOpen] = useState(false);
   const [selectedCode, setSelectedCode] = useState<number | null>(null);
-  const [countryCodes, setCountryCodes] = useState<
-    { label: string; value: number }[]
-  >([]);
 
   const router = useRouter();
   const { setSignupData } = useSignupStore();
 
-  useEffect(() => {
-    const fetchCountryCodes = async () => {
-      try {
-        const res = await axios.get(
-          "http://192.168.29.138:3367/users/getCountryCode"
-        );
-        if (res.data?.data) {
-          const formatted = res.data.data.map((item: CountryCode) => ({
-            label: `${item.country_code} (${item.country_name})`,
-            value: item.id,
-          }));
-          setCountryCodes(formatted);
-        }
-      } catch (error) {
-        console.log("Country code fetch error:", error);
-      }
-    };
-    fetchCountryCodes();
-  }, []);
+  const {
+    data: countryCodes = [],
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["countryCodes"],
+    queryFn: async () => {
+      const res = await api.get("/users/getCountryCode");
+      return res.data;
+    },
+    select: (response) =>
+      response?.data?.map((item: CountryCode) => ({
+        label: item.country_code,
+        value: item.id,
+      })) || [],
+  });
 
   const SignupSchema = Yup.object().shape({
     name: Yup.string().required("Name is required"),
@@ -194,12 +188,15 @@ export default function SignupScreen() {
                           items={countryCodes}
                           setOpen={setOpen}
                           setValue={setSelectedCode}
-                          setItems={setCountryCodes}
+                          //   setItems={setCountryCodes}
                           placeholder="Code"
                           style={styles.dropdown}
                           dropDownContainerStyle={styles.dropdownContainer}
                           textStyle={{ color: "#fff" }}
-                          zIndex={1000}
+                          scrollViewProps={{
+                            showsVerticalScrollIndicator: false,
+                            showsHorizontalScrollIndicator: false,
+                          }}
                         />
                       </View>
 
@@ -249,11 +246,11 @@ export default function SignupScreen() {
 
                 {/* Signup Button */}
                 <TouchableOpacity
-                  style={[styles.signupButton, loading && { opacity: 0.6 }]}
+                  style={[styles.signupButton, isLoading && { opacity: 0.6 }]}
                   onPress={handleSubmit as any}
-                  disabled={loading}
+                  disabled={isLoading}
                 >
-                  {loading ? (
+                  {isLoading ? (
                     <ActivityIndicator color="#fff" />
                   ) : (
                     <Text style={styles.signupText}>NEXT</Text>
