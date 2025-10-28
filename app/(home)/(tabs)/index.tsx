@@ -97,6 +97,13 @@ export default function DashboardScreen() {
           >
             <Text style={[styles.buttonText]}>Notification</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => router.push("../../minomp/usertodo")}
+          >
+            <Text style={[styles.buttonText]}>Minomp Todos</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </ScrollView>

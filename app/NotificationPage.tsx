@@ -1,17 +1,24 @@
+import Loader from "@/components/Loader";
+import { Ionicons } from "@expo/vector-icons";
 import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "expo-router"; // If you're storing user token somewhere, import it from context or async storage
 import React, { useState } from "react";
-import { Alert, Button, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Alert,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import api from "./fetchapi";
 import { safeStorage } from "./store/storage";
-// If you're storing user token somewhere, import it from context or async storage
-// import { useUser } from "../store/UserContext";
 
 const NotificationPage = () => {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
-  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  // Temporary hardcoded token (replace or fetch dynamically)
   const token = safeStorage.getString("fcmToken") || "";
   //   console.log("Token in Notification Page", token);
 
@@ -22,16 +29,14 @@ const NotificationPage = () => {
         title,
         body,
       };
-      console.log("Final Notification payload:", payload);
       const res = await api.post("/notifications/send", payload);
       return res.data;
     },
     onSuccess: (data) => {
-      if (data?.resp_code === "000") {
-        console.log("Notification Sent!!!");
-      } else {
-        Alert.alert("Error", data?.resp_message || "Something wend wrong");
-      }
+      console.log("Response:", data);
+      //   Alert.alert("Success", "Notification sent successfully!");
+      setTitle("");
+      setBody("");
     },
     onError: (error: any) => {
       console.error("Create user error:", error);
@@ -40,11 +45,30 @@ const NotificationPage = () => {
   });
 
   const handleSendNoti = () => {
+    if (!title || !body) {
+      Alert.alert("Validation", "Please enter both title and message");
+      return;
+    }
     sendNotification.mutate();
   };
 
+  if (sendNotification.isPending) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Loader />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => router.back()}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      >
+        <Ionicons name="arrow-back" size={24} color="#4cd137" />
+      </TouchableOpacity>
       <Text style={styles.heading}>Send Push Notification</Text>
 
       <TextInput
@@ -61,11 +85,9 @@ const NotificationPage = () => {
         multiline
       />
 
-      <Button
-        title={loading ? "Sending..." : "Send Notification"}
-        onPress={handleSendNoti}
-        disabled={loading}
-      />
+      <TouchableOpacity style={styles.button} onPress={handleSendNoti}>
+        <Text style={[styles.buttonText]}>Send Notification</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -76,7 +98,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    justifyContent: "center",
+    // justifyContent: "center",
     backgroundColor: "#f9f9f9",
   },
   heading: {
@@ -97,5 +119,29 @@ const styles = StyleSheet.create({
   messageInput: {
     height: 100,
     textAlignVertical: "top",
+  },
+  button: {
+    width: "100%",
+    backgroundColor: "#4cd137",
+    padding: 15,
+    borderRadius: 12,
+    marginTop: 20,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontWeight: "bold",
+    textTransform: "uppercase",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  backButton: {
+    // position: "absolute",
+    marginTop: 40,
+    // flex:1
+    // top: 40,
+    // left: 20,
+    // zIndex: 10,
   },
 });

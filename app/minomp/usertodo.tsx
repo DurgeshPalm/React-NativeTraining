@@ -1,9 +1,9 @@
-import Loader from "@/components/Loader";
 import { Ionicons } from "@expo/vector-icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "expo-router";
+import axios from "axios";
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
   FlatList,
   StyleSheet,
   Text,
@@ -11,21 +11,37 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useThemeStore } from "../../app/store/themeStore";
-import api from "../fetchapi";
+import { useThemeStore } from "../store/themeStore";
 
-// ✅ Fetch Todos
+const API_URL = "http://192.168.29.138:3367/todos";
+
 const fetchTodos = async () => {
-  const res = await api.get("/todos");
-  return res.data;
+  const res = await axios.get(API_URL);
+  return res.data.data;
+};
+
+const createTodo = async (title: string) => {
+  await axios.post(API_URL, { title });
+};
+
+const updateTodo = async ({
+  id,
+  completed,
+}: {
+  id: number;
+  completed: boolean;
+}) => {
+  await axios.patch(`${API_URL}/${id}`, { completed: !completed });
+};
+
+const deleteTodo = async (id: number) => {
+  await axios.delete(`${API_URL}/${id}`);
 };
 
 export default function TodoApp() {
-  const router = useRouter();
+  const [text, setText] = useState("");
   const queryClient = useQueryClient();
   const theme = useThemeStore((state) => state.theme);
-
-  const [text, setText] = useState("");
 
   const backgroundColor = theme === "light" ? "#2f3640" : "#f5f6fa";
   const textColor = theme === "light" ? "#f5f6fa" : "#2f3640";
@@ -42,10 +58,7 @@ export default function TodoApp() {
 
   // ✅ 2. Add Todo
   const addTodoMutation = useMutation({
-    mutationFn: async (title: string) => {
-      if (!title.trim()) throw new Error("Task title cannot be empty");
-      await api.post("/todos", { title });
-    },
+    mutationFn: createTodo,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["todos"] });
       setText("");
@@ -54,15 +67,7 @@ export default function TodoApp() {
 
   // ✅ 3. Toggle Complete
   const toggleCompleteMutation = useMutation({
-    mutationFn: async ({
-      id,
-      completed,
-    }: {
-      id: number;
-      completed: boolean;
-    }) => {
-      await api.put(`/todos/${id}`, { completed: !completed });
-    },
+    mutationFn: updateTodo,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["todos"] });
     },
@@ -70,67 +75,63 @@ export default function TodoApp() {
 
   // ✅ 4. Delete Todo
   const deleteTodoMutation = useMutation({
-    mutationFn: async (id: number) => {
-      await api.delete(`/todos/${id}`);
-    },
+    mutationFn: deleteTodo,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["todos"] });
     },
   });
 
-  if (isLoading) {
-    return (
-      <View style={[styles.center, { backgroundColor }]}>
-        <Loader />
-      </View>
-    );
-  }
+  const handleAdd = () => {
+    if (!text.trim()) return;
+    addTodoMutation.mutate(text);
+  };
 
-  if (isError) {
-    return (
-      <View style={[styles.center, { backgroundColor }]}>
-        <Text style={{ color: "tomato" }}>Failed to load todos 😢</Text>
-      </View>
-    );
-  }
+  const handleToggle = (id: number, completed: boolean) => {
+    toggleCompleteMutation.mutate({ id, completed });
+  };
+
+  const handleDelete = (id: number) => {
+    deleteTodoMutation.mutate(id);
+  };
 
   return (
     <View style={[styles.container, { backgroundColor }]}>
-      <View style={styles.headerContainer}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.backButton}
-        >
-          <Ionicons name="arrow-back" size={28} color="#4cd137" />
+      <Text style={[styles.title, { color: textColor }]}>AddTask TODO</Text>
+
+      {/* Input */}
+      <View style={styles.inputRow}>
+        <TextInput
+          placeholder="Enter a new task..."
+          value={text}
+          onChangeText={setText}
+          style={styles.input}
+          returnKeyType="done"
+          onSubmitEditing={handleAdd}
+        />
+        <TouchableOpacity style={styles.addButton} onPress={handleAdd}>
+          <Ionicons name="add-circle" size={40} color="#4cd137" />
         </TouchableOpacity>
-
-        <Text style={[styles.title, { color: textColor }]}>
-          React Query TODO
-        </Text>
-
-        <View style={styles.inputRow}>
-          <TextInput
-            placeholder="Enter a new task..."
-            value={text}
-            onChangeText={setText}
-            style={styles.input}
-            returnKeyType="done"
-            onSubmitEditing={() => addTodoMutation.mutate(text)}
-          />
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => addTodoMutation.mutate(text)}
-            disabled={addTodoMutation.isPending}
-          >
-            <Ionicons
-              name="add-circle"
-              size={40}
-              color={addTodoMutation.isPending ? "#ccc" : "#4cd137"}
-            />
-          </TouchableOpacity>
-        </View>
       </View>
 
+      {/* Loading */}
+      {isLoading && (
+        <ActivityIndicator
+          size="large"
+          color="#4cd137"
+          style={{ marginTop: 20 }}
+        />
+      )}
+
+      {/* Error */}
+      {isError && (
+        <View>
+          <Text style={{ color: "red", textAlign: "center" }}>
+            Failed to load todos 😞
+          </Text>
+        </View>
+      )}
+
+      {/* List */}
       <FlatList
         data={todos || []}
         keyExtractor={(item) => item.id.toString()}
@@ -141,12 +142,7 @@ export default function TodoApp() {
                 styles.checkCircle,
                 item.completed && { backgroundColor: "#4cd137" },
               ]}
-              onPress={() =>
-                toggleCompleteMutation.mutate({
-                  id: item.id,
-                  completed: item.completed,
-                })
-              }
+              onPress={() => handleToggle(item.id, item.completed)}
             >
               {item.completed && (
                 <Ionicons name="checkmark" size={18} color="white" />
@@ -165,20 +161,11 @@ export default function TodoApp() {
               {item.title}
             </Text>
 
-            <TouchableOpacity
-              onPress={() => deleteTodoMutation.mutate(item.id)}
-              disabled={deleteTodoMutation.isPending}
-            >
-              <Ionicons
-                name="trash"
-                size={22}
-                color={deleteTodoMutation.isPending ? "#ccc" : "tomato"}
-              />
+            <TouchableOpacity onPress={() => handleDelete(item.id)}>
+              <Ionicons name="trash" size={22} color="tomato" />
             </TouchableOpacity>
           </View>
         )}
-        contentContainerStyle={{ paddingBottom: 100 }}
-        showsVerticalScrollIndicator={false}
       />
     </View>
   );
@@ -186,17 +173,14 @@ export default function TodoApp() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },
-  headerContainer: { marginBottom: 15 },
-  backButton: { marginRight: 10, marginTop: 40 },
-  inputRow: { flexDirection: "row", alignItems: "center" },
+  inputRow: { flexDirection: "row", alignItems: "center", marginBottom: 20 },
   input: {
     flex: 1,
-    backgroundColor: "white",
-    padding: 12,
-    borderRadius: 8,
-    borderColor: "#dcdde1",
     borderWidth: 1,
-    fontSize: 16,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 12,
+    backgroundColor: "white",
   },
   addButton: { marginLeft: 10 },
   todoItem: {
@@ -206,16 +190,6 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 10,
     borderRadius: 8,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
-  },
-  todoText: {
-    flex: 1,
-    fontSize: 16,
-    marginLeft: 10,
-    color: "#2f3640",
   },
   checkCircle: {
     width: 24,
@@ -226,15 +200,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  todoText: { flex: 1, marginLeft: 10, fontSize: 16, color: "#2f3640" },
   title: {
     fontSize: 28,
     fontWeight: "700",
-    marginBottom: 40,
-    alignSelf: "center",
-  },
-  center: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    textAlign: "center",
+    marginBottom: 20,
   },
 });
