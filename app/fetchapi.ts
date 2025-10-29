@@ -1,9 +1,11 @@
 import axios from "axios";
 
+const API_BASE_URL = process.env.API_BASE_URL;
 const api = axios.create({
-  baseURL: "http://192.168.29.138:3367",
+  baseURL: API_BASE_URL,
   timeout: 10000,
 });
+
 
 
 api.interceptors.request.use(

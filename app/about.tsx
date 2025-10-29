@@ -8,7 +8,7 @@ import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import { showMessage } from "react-native-flash-message";
 import { LOCATION_TASK_NAME } from "./background-location-task";
 
-const GOOGLE_API_KEY = "AIzaSyBYV7xf7gDYvtDzdKD_GHJm8H6SIeJup5k";
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
 const AboutApp = () => {
   const router = useRouter();
