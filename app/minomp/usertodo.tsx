@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -11,17 +11,16 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import api from "../fetchapi";
 import { useThemeStore } from "../store/themeStore";
 
-const API_URL = "http://192.168.29.138:3367/todos";
-
 const fetchTodos = async () => {
-  const res = await axios.get(API_URL);
+  const res = await api.get("/todos");
   return res.data.data;
 };
 
 const createTodo = async (title: string) => {
-  await axios.post(API_URL, { title });
+  await api.post("/todos", { title });
 };
 
 const updateTodo = async ({
@@ -31,17 +30,18 @@ const updateTodo = async ({
   id: number;
   completed: boolean;
 }) => {
-  await axios.patch(`${API_URL}/${id}`, { completed: !completed });
+  await api.patch(`/todos/${id}`, { completed: !completed });
 };
 
 const deleteTodo = async (id: number) => {
-  await axios.delete(`${API_URL}/${id}`);
+  await api.delete(`/todos/${id}`);
 };
 
 export default function TodoApp() {
   const [text, setText] = useState("");
   const queryClient = useQueryClient();
   const theme = useThemeStore((state) => state.theme);
+  const router = useRouter();
 
   const backgroundColor = theme === "light" ? "#2f3640" : "#f5f6fa";
   const textColor = theme === "light" ? "#f5f6fa" : "#2f3640";
@@ -96,23 +96,31 @@ export default function TodoApp() {
 
   return (
     <View style={[styles.container, { backgroundColor }]}>
-      <Text style={[styles.title, { color: textColor }]}>AddTask TODO</Text>
-
-      {/* Input */}
-      <View style={styles.inputRow}>
-        <TextInput
-          placeholder="Enter a new task..."
-          value={text}
-          onChangeText={setText}
-          style={styles.input}
-          returnKeyType="done"
-          onSubmitEditing={handleAdd}
-        />
-        <TouchableOpacity style={styles.addButton} onPress={handleAdd}>
-          <Ionicons name="add-circle" size={40} color="#4cd137" />
+      <View style={styles.headerContainer}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
+          <Ionicons name="arrow-back" size={28} color="#4cd137" />
         </TouchableOpacity>
-      </View>
 
+        <Text style={[styles.title, { color: textColor }]}>AddTask TODO</Text>
+
+        {/* Input */}
+        <View style={styles.inputRow}>
+          <TextInput
+            placeholder="Enter a new task..."
+            value={text}
+            onChangeText={setText}
+            style={styles.input}
+            returnKeyType="done"
+            onSubmitEditing={handleAdd}
+          />
+          <TouchableOpacity style={styles.addButton} onPress={handleAdd}>
+            <Ionicons name="add-circle" size={40} color="#4cd137" />
+          </TouchableOpacity>
+        </View>
+      </View>
       {/* Loading */}
       {isLoading && (
         <ActivityIndicator
@@ -166,13 +174,18 @@ export default function TodoApp() {
             </TouchableOpacity>
           </View>
         )}
+        showsVerticalScrollIndicator={false}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
+  container: {
+    flex: 1,
+    backgroundColor: "#f5f6fa",
+    padding: 20,
+  },
   inputRow: { flexDirection: "row", alignItems: "center", marginBottom: 20 },
   input: {
     flex: 1,
@@ -206,5 +219,12 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     textAlign: "center",
     marginBottom: 20,
+  },
+  backButton: {
+    marginRight: 10,
+    marginTop: 40,
+  },
+  headerContainer: {
+    marginBottom: 15,
   },
 });

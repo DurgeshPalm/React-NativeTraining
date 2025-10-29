@@ -43,7 +43,7 @@ export default function SignupScreen() {
     },
     select: (response) =>
       response?.data?.map((item: CountryCode) => ({
-        label: item.country_code,
+        label: `${item.country_code}  ${item.country_name}`,
         value: item.id,
       })) || [],
   });
@@ -305,7 +305,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     height: 50,
   },
-  dropdownContainer: { backgroundColor: "#C08FFF", borderColor: "#C08FFF" },
+  dropdownContainer: {
+    backgroundColor: "#C08FFF",
+    borderColor: "#C08FFF",
+    width: 250, // 👈 Wider dropdown to fit both code + name
+    alignSelf: "flex-start",
+    marginTop: 5,
+    zIndex: 1000,
+  },
   signupButton: {
     backgroundColor: "#00EAD3",
     borderRadius: 10,
