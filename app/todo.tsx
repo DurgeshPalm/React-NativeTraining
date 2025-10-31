@@ -1,16 +1,7 @@
 import Loader from "@/components/Loader";
 import { Ionicons } from "@expo/vector-icons";
+import firestore from "@react-native-firebase/firestore";
 import { useRouter } from "expo-router";
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  onSnapshot,
-  query,
-  serverTimestamp,
-  updateDoc,
-} from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import {
   FlatList,
@@ -20,7 +11,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { db } from "../app/firebase/firebaseconfig";
 import { useThemeStore } from "../app/store/themeStore";
 
 export default function TodoApp() {
@@ -31,26 +21,31 @@ export default function TodoApp() {
 
   const backgroundColor = theme == "light" ? "#2f3640" : "#f5f6fa";
   const textColor = theme === "light" ? "#f5f6fa" : "#2f3640";
-  const subtitleColor = theme === "light" ? "#ccc" : "#666";
 
+  // ✅ Realtime listener using @react-native-firebase/firestore
   useEffect(() => {
-    const q = query(collection(db, "todos"));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const list: any[] = [];
-      snapshot.forEach((doc) => list.push({ id: doc.id, ...doc.data() }));
-      setTodos(list);
-    });
+    const unsubscribe = firestore()
+      .collection("todos")
+      .orderBy("createdAt", "desc")
+      .onSnapshot((querySnapshot) => {
+        const list: any[] = [];
+        querySnapshot.forEach((doc) => {
+          list.push({ id: doc.id, ...doc.data() });
+        });
+        setTodos(list);
+      });
+
     return () => unsubscribe();
   }, []);
-  // console.log(todos);
 
+  // ✅ Add new todo
   const addTodo = async () => {
     if (text.trim() === "") return;
     try {
-      await addDoc(collection(db, "todos"), {
+      await firestore().collection("todos").add({
         title: text,
         completed: false,
-        createdAt: serverTimestamp(),
+        createdAt: firestore.FieldValue.serverTimestamp(),
       });
       setText("");
     } catch (err) {
@@ -58,18 +53,28 @@ export default function TodoApp() {
     }
   };
 
+  // ✅ Toggle complete/incomplete
   const toggleComplete = async (id: string, completed: boolean) => {
-    const ref = doc(db, "todos", id);
-    await updateDoc(ref, { completed: !completed });
+    try {
+      await firestore().collection("todos").doc(id).update({
+        completed: !completed,
+      });
+    } catch (err) {
+      console.log("Error updating todo:", err);
+    }
   };
 
+  // ✅ Delete todo
   const deleteTodo = async (id: string) => {
-    const ref = doc(db, "todos", id);
-    await deleteDoc(ref);
+    try {
+      await firestore().collection("todos").doc(id).delete();
+    } catch (err) {
+      console.log("Error deleting todo:", err);
+    }
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: backgroundColor }]}>
+    <View style={[styles.container, { backgroundColor }]}>
       <View style={styles.headerContainer}>
         <TouchableOpacity
           onPress={() => router.back()}
@@ -77,7 +82,9 @@ export default function TodoApp() {
         >
           <Ionicons name="arrow-back" size={28} color="#4cd137" />
         </TouchableOpacity>
+
         <Text style={[styles.title, { color: textColor }]}>AddTask TODO</Text>
+
         <View style={styles.inputRow}>
           <TextInput
             placeholder="Enter a new task..."
@@ -122,6 +129,7 @@ export default function TodoApp() {
             >
               {item.title}
             </Text>
+
             <TouchableOpacity onPress={() => deleteTodo(item.id)}>
               <Ionicons name="trash" size={22} color="tomato" />
             </TouchableOpacity>
@@ -142,18 +150,11 @@ export default function TodoApp() {
 }
 
 const styles = StyleSheet.create({
-  headerContainer: {
-    marginBottom: 15,
-  },
+  headerContainer: { marginBottom: 15 },
   container: {
     flex: 1,
     backgroundColor: "#f5f6fa",
     padding: 20,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 15,
   },
   backButton: {
     marginRight: 10,
@@ -168,9 +169,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     fontSize: 16,
   },
-  addButton: {
-    marginLeft: 10,
-  },
+  addButton: { marginLeft: 10 },
   todoItem: {
     flexDirection: "row",
     alignItems: "center",
