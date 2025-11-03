@@ -1,7 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -10,13 +14,14 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from "react-native";
 import api from "../fetchapi";
 import { useThemeStore } from "../store/themeStore";
 
-const fetchTodos = async () => {
-  const res = await api.get("/todos");
-  return res.data.data;
+const fetchTodos = async ({ pageParam = 1 }) => {
+  const res = await api.post("/todos/list", { page: pageParam, limit: 10 });
+  return res.data;
 };
 
 const createTodo = async (title: string) => {
@@ -42,21 +47,85 @@ export default function TodoApp() {
   const queryClient = useQueryClient();
   const theme = useThemeStore((state) => state.theme);
   const router = useRouter();
+  const { height: windowHeight } = useWindowDimensions();
+
+  // layout measurement state
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const [contentHeight, setContentHeight] = useState(0);
+
+  // guard to prevent repeated auto-fetch triggers
+  const loadingMoreRef = useRef(false);
 
   const backgroundColor = theme === "light" ? "#2f3640" : "#f5f6fa";
   const textColor = theme === "light" ? "#f5f6fa" : "#2f3640";
 
-  // ✅ 1. Fetch Todos
+  // ✅ Infinite Query for Pagination
   const {
-    data: todos,
+    data,
     isLoading,
     isError,
-  } = useQuery({
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
     queryKey: ["todos"],
     queryFn: fetchTodos,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.pagination.page < lastPage.pagination.totalPages) {
+        return lastPage.pagination.page + 1;
+      }
+      return undefined;
+    },
   });
 
-  // ✅ 2. Add Todo
+  const todos = data?.pages.flatMap((page) => page.data) || [];
+
+  // Effect: when content height < available viewport and there are more pages,
+  // auto-fetch next page. Use guards to avoid duplicate triggers.
+  useEffect(() => {
+    // only try when we have measured dimensions and have pages
+    if (
+      headerHeight <= 0 ||
+      contentHeight <= 0 ||
+      windowHeight <= 0 ||
+      !hasNextPage
+    ) {
+      return;
+    }
+
+    // compute available area for list: window height minus header and some padding
+    const availableForList = windowHeight - headerHeight - 40; // 40 for top/bottom margins/padding
+
+    // If content doesn't fill the available area, we want to fetch more
+    if (
+      contentHeight < availableForList &&
+      hasNextPage &&
+      !isFetchingNextPage &&
+      !loadingMoreRef.current
+    ) {
+      loadingMoreRef.current = true;
+      // fetch next page
+      fetchNextPage().catch(() => {
+        // swallow errors here; React Query will set error state
+      });
+    }
+  }, [
+    contentHeight,
+    headerHeight,
+    windowHeight,
+    hasNextPage,
+    isFetchingNextPage,
+  ]);
+
+  // Reset the guard once fetching finishes
+  useEffect(() => {
+    if (!isFetchingNextPage) {
+      loadingMoreRef.current = false;
+    }
+  }, [isFetchingNextPage]);
+
+  // ✅ Mutations
   const addTodoMutation = useMutation({
     mutationFn: createTodo,
     onSuccess: () => {
@@ -65,7 +134,6 @@ export default function TodoApp() {
     },
   });
 
-  // ✅ 3. Toggle Complete
   const toggleCompleteMutation = useMutation({
     mutationFn: updateTodo,
     onSuccess: () => {
@@ -73,7 +141,6 @@ export default function TodoApp() {
     },
   });
 
-  // ✅ 4. Delete Todo
   const deleteTodoMutation = useMutation({
     mutationFn: deleteTodo,
     onSuccess: () => {
@@ -96,7 +163,14 @@ export default function TodoApp() {
 
   return (
     <View style={[styles.container, { backgroundColor }]}>
-      <View style={styles.headerContainer}>
+      <View
+        style={styles.headerContainer}
+        // measure header height
+        onLayout={(e) => {
+          const h = e.nativeEvent.layout.height;
+          if (h && h !== headerHeight) setHeaderHeight(h);
+        }}
+      >
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.backButton}
@@ -106,7 +180,6 @@ export default function TodoApp() {
 
         <Text style={[styles.title, { color: textColor }]}>AddTask TODO</Text>
 
-        {/* Input */}
         <View style={styles.inputRow}>
           <TextInput
             placeholder="Enter a new task..."
@@ -121,7 +194,7 @@ export default function TodoApp() {
           </TouchableOpacity>
         </View>
       </View>
-      {/* Loading */}
+
       {isLoading && (
         <ActivityIndicator
           size="large"
@@ -130,7 +203,6 @@ export default function TodoApp() {
         />
       )}
 
-      {/* Error */}
       {isError && (
         <View>
           <Text style={{ color: "red", textAlign: "center" }}>
@@ -139,9 +211,12 @@ export default function TodoApp() {
         </View>
       )}
 
-      {/* List */}
       <FlatList
-        data={todos || []}
+        data={todos}
+        // measure content height whenever it changes
+        onContentSizeChange={(_, h) => {
+          if (h && h !== contentHeight) setContentHeight(h);
+        }}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <View style={styles.todoItem}>
@@ -174,6 +249,22 @@ export default function TodoApp() {
             </TouchableOpacity>
           </View>
         )}
+        onEndReached={() => {
+          if (hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
+        }}
+        onEndReachedThreshold={0.2}
+        ListFooterComponent={
+          isFetchingNextPage ? (
+            <ActivityIndicator
+              size="small"
+              color="#4cd137"
+              style={{ margin: 10 }}
+            />
+          ) : null
+        }
+        contentContainerStyle={{ paddingBottom: 20 }}
         showsVerticalScrollIndicator={false}
       />
     </View>
@@ -181,11 +272,7 @@ export default function TodoApp() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f5f6fa",
-    padding: 20,
-  },
+  container: { flex: 1, backgroundColor: "#f5f6fa", padding: 20 },
   inputRow: { flexDirection: "row", alignItems: "center", marginBottom: 20 },
   input: {
     flex: 1,
@@ -220,11 +307,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 20,
   },
-  backButton: {
-    marginRight: 10,
-    marginTop: 40,
-  },
-  headerContainer: {
-    marginBottom: 15,
-  },
+  backButton: { marginRight: 10, marginTop: 40 },
+  headerContainer: { marginBottom: 15 },
 });

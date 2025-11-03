@@ -27,13 +27,28 @@ export default function TodoApp() {
     const unsubscribe = firestore()
       .collection("todos")
       .orderBy("createdAt", "desc")
-      .onSnapshot((querySnapshot) => {
-        const list: any[] = [];
-        querySnapshot.forEach((doc) => {
-          list.push({ id: doc.id, ...doc.data() });
-        });
-        setTodos(list);
-      });
+      .onSnapshot(
+        (querySnapshot) => {
+          if (!querySnapshot || querySnapshot.empty) {
+            setTodos([]); // no data yet
+            return;
+          }
+
+          const list: any[] = [];
+          querySnapshot.forEach(
+            (doc) => {
+              list.push({ id: doc.id, ...doc.data() });
+            },
+            (error: any) => {
+              console.error("Firestore listener error:", error);
+            }
+          );
+          setTodos(list);
+        },
+        (error) => {
+          console.error("Firestore listener error:", error);
+        }
+      );
 
     return () => unsubscribe();
   }, []);

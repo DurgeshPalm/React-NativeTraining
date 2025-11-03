@@ -90,6 +90,7 @@ const GoogleLoginButton = () => {
           size={GoogleSigninButton.Size.Wide}
           color={GoogleSigninButton.Color.Dark}
           onPress={handleGoogleSignIn}
+          disabled={loading}
         />
       )}
     </View>
