@@ -76,7 +76,7 @@ export default function FindParentChildScreen() {
       if (data?.resp_code === "000") {
         showAlert("Success", "Account created successfully!");
         resetSignupData();
-        router.replace("/");
+        // router.replace("/");
       } else {
         showAlert("Error", data?.resp_message || "Signup failed");
       }
@@ -98,6 +98,7 @@ export default function FindParentChildScreen() {
   // 🔹 Handle user creation
   const handleCreateUser = (connectionid: string) => {
     createUserMutation.mutate(connectionid);
+    router.push("./loginminomp");
   };
 
   const isLoading = findUserMutation.isPending || createUserMutation.isPending;

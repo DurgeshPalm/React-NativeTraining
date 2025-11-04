@@ -5,6 +5,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import GoogleLoginButton from "../../../components/googlelogin";
 import { useUser } from "../../store/UserContext";
+import { safeStorage } from "../../store/storage";
 import { useThemeStore } from "../../store/themeStore";
 
 export default function DashboardScreen() {
@@ -23,6 +24,16 @@ export default function DashboardScreen() {
       console.log("Background location updates stopped.");
     } catch (error) {
       console.error("Error stopping background location updates:", error);
+    }
+  };
+
+  const handleMinompApp = async () => {
+    const token = safeStorage.getString("token");
+
+    if (token) {
+      router.push("../../minomp/loginminomp");
+    } else {
+      router.push("../../minomp/signup");
     }
   };
 
@@ -79,11 +90,8 @@ export default function DashboardScreen() {
           >
             <Text style={[styles.buttonText]}>TodoList</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => router.push("../../minomp/signup")}
-          >
-            <Text style={[styles.buttonText]}>SignupTominomp</Text>
+          <TouchableOpacity style={styles.button} onPress={handleMinompApp}>
+            <Text style={[styles.buttonText]}>Open Minomp App</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
