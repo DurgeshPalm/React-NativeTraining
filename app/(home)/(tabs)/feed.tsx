@@ -1,46 +1,106 @@
-import React from "react";
-import { StyleSheet, Text, View } from "react-native";
-import { useUser } from "../../store/UserContext";
-import { useThemeStore } from "../../store/themeStore";
+import * as ImagePicker from "expo-image-picker";
+import React, { useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useUploadPhoto } from "../../../hooks/useUploadPhoto";
 
-const Feed = () => {
-  const { user } = useUser();
-  const theme = useThemeStore((state) => state.theme);
+// ✅ static test values
+const STATIC_USER_ID = 90;
+const STATIC_TOKEN = "PASTE_YOUR_LOGIN_TOKEN_HERE"; // from login response
+
+interface SelectedImage {
+  uri: string;
+  width?: number;
+  height?: number;
+  type?: string;
+  fileName?: string;
+}
+
+const UploadPhotoScreen: React.FC = () => {
+  const { mutate, isPending } = useUploadPhoto();
+  const [image, setImage] = useState<SelectedImage | null>(null);
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.7,
+    });
+
+    if (!result.canceled) {
+      const asset = result.assets[0];
+
+      const file: SelectedImage = {
+        uri: asset.uri,
+        type: "image/jpeg",
+        fileName: asset.fileName ?? "photo.jpg",
+        width: asset.width,
+        height: asset.height,
+      };
+
+      setImage(file);
+
+      mutate(
+        { userId: STATIC_USER_ID, file, token: STATIC_TOKEN },
+        {
+          onSuccess: (res) => {
+            Alert.alert("✅ Upload Success", res.message);
+          },
+          onError: (err) => {
+            console.log(err);
+            Alert.alert("❌ Upload Failed", "Please try again");
+          },
+        }
+      );
+    }
+  };
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme === "light" ? "#2f3640" : "##fff" },
-      ]}
-    >
-      <Text
-        style={[
-          styles.title,
-          { color: theme === "light" ? "#f5f6fa" : "#2f3640" },
-        ]}
+    <View style={styles.container}>
+      <Text style={styles.title}>Upload Profile Image</Text>
+
+      {image && <Image source={{ uri: image.uri }} style={styles.image} />}
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={pickImage}
+        disabled={isPending}
       >
-        {" "}
-        {user ? `About ${user.name}` : "About Guest"}
-      </Text>
+        {isPending ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>Choose Image</Text>
+        )}
+      </TouchableOpacity>
     </View>
   );
 };
 
-export default Feed;
+export default UploadPhotoScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f6fa",
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#2f3640",
-    marginBottom: 40,
+  title: { fontSize: 22, fontWeight: "600", marginBottom: 15 },
+  image: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    marginBottom: 20,
+    borderWidth: 2,
+    borderColor: "#3498db",
   },
+  button: { backgroundColor: "#3498db", padding: 14, borderRadius: 8 },
+  buttonText: { color: "#fff", fontSize: 16 },
 });
