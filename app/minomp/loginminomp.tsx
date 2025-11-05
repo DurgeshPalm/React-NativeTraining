@@ -2,6 +2,7 @@ import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  ImageBackground,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
@@ -27,9 +28,8 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // Fetch country codes
   useEffect(() => {
-    const fetchCountryCodes = async () => {
+    const fetchCodes = async () => {
       try {
         const res = await api.get("/users/getCountryCode");
         setCountryCodeList(res.data.data);
@@ -37,7 +37,7 @@ export default function LoginScreen() {
         console.error("Error fetching country codes", err);
       }
     };
-    fetchCountryCodes();
+    fetchCodes();
   }, []);
 
   const handleLogin = async () => {
@@ -50,19 +50,17 @@ export default function LoginScreen() {
         country_code_id: loginMode === "mobile" ? countryCodeId : null,
       };
 
-      const response = await api.post("/users/login", payload);
-      const token = response.data?.token;
+      const res = await api.post("/users/login", payload);
+      const token = res.data?.token;
 
       if (token) {
         safeStorage.set("token", token);
         alert("Login successful!");
         router.replace("/");
       } else {
-        alert("Something went wrong!!.");
-        console.log("response:", response.data);
+        alert("Something went wrong!");
       }
     } catch (error) {
-      console.error(error);
       alert("Login failed. Check credentials.");
     } finally {
       setLoading(false);
@@ -70,63 +68,68 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <ImageBackground
+      source={require("../../assets/minompback.png")}
+      resizeMode="cover"
+      style={styles.bg}
+      imageStyle={{ opacity: 0.06 }}
+    >
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <View style={styles.card}>
-          <Text style={styles.title}>Login</Text>
+        <View style={styles.container}>
+          <View style={styles.card}>
+            <Text style={styles.title}>LogIn</Text>
 
-          {/* Toggle buttons */}
-          <View style={styles.toggleContainer}>
-            <TouchableOpacity
-              style={[
-                styles.toggleButton,
-                loginMode === "mobile" && styles.activeToggle,
-              ]}
-              onPress={() => setLoginMode("mobile")}
-            >
-              <Text
+            {/* Toggle */}
+            <View style={styles.toggleContainer}>
+              <TouchableOpacity
                 style={[
-                  styles.toggleText,
-                  loginMode === "mobile" && styles.activeText,
+                  styles.toggleButton,
+                  loginMode === "mobile" && styles.activeToggle,
                 ]}
+                onPress={() => setLoginMode("mobile")}
               >
-                Mobile
-              </Text>
-            </TouchableOpacity>
+                <Text
+                  style={[
+                    styles.toggleText,
+                    loginMode === "mobile" && styles.activeText,
+                  ]}
+                >
+                  Mobile
+                </Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[
-                styles.toggleButton,
-                loginMode === "email" && styles.activeToggle,
-              ]}
-              onPress={() => setLoginMode("email")}
-            >
-              <Text
+              <TouchableOpacity
                 style={[
-                  styles.toggleText,
-                  loginMode === "email" && styles.activeText,
+                  styles.toggleButton,
+                  loginMode === "email" && styles.activeToggle,
                 ]}
+                onPress={() => setLoginMode("email")}
               >
-                Email
-              </Text>
-            </TouchableOpacity>
-          </View>
+                <Text
+                  style={[
+                    styles.toggleText,
+                    loginMode === "email" && styles.activeText,
+                  ]}
+                >
+                  Email
+                </Text>
+              </TouchableOpacity>
+            </View>
 
-          {/* Email Input */}
-          {loginMode === "email" ? (
-            <TextInput
-              placeholder="Email"
-              style={styles.input}
-              placeholderTextColor="#ccc"
-              value={email}
-              onChangeText={setEmail}
-            />
-          ) : (
-            <View style={styles.row}>
-              <View style={styles.countryPicker}>
+            {/* Email / Mobile Input */}
+            {loginMode === "email" ? (
+              <TextInput
+                placeholder="Email"
+                placeholderTextColor="#ccc"
+                style={styles.input}
+                value={email}
+                onChangeText={setEmail}
+              />
+            ) : (
+              <View style={styles.row}>
                 <DropDownPicker
                   open={pickerOpen}
                   value={countryCodeId}
@@ -137,130 +140,118 @@ export default function LoginScreen() {
                   setOpen={setPickerOpen}
                   setValue={setCountryCodeId}
                   setItems={setCountryCodeList}
-                  placeholder="+Code"
+                  placeholder="+91"
                   containerStyle={{ width: 80 }}
                   style={{ backgroundColor: "#b9a7f7" }}
                 />
+
+                <TextInput
+                  placeholder="Mobile"
+                  keyboardType="phone-pad"
+                  placeholderTextColor="#ccc"
+                  value={mobile}
+                  onChangeText={setMobile}
+                  style={[styles.input, { flex: 1, marginLeft: 6 }]}
+                />
               </View>
-              <TextInput
-                placeholder="Mobile"
-                style={[styles.input, { flex: 1 }]}
-                keyboardType="phone-pad"
-                placeholderTextColor="#ccc"
-                value={mobile}
-                onChangeText={setMobile}
-              />
-            </View>
-          )}
-
-          {/* Password Input */}
-          <TextInput
-            placeholder="Password"
-            secureTextEntry
-            style={styles.input}
-            placeholderTextColor="#ccc"
-            value={password}
-            onChangeText={setPassword}
-          />
-
-          <TouchableOpacity>
-            <Text style={styles.forgotText}>Forgot Password?</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.loginButton}
-            onPress={handleLogin}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.loginText}>LOGIN</Text>
             )}
-          </TouchableOpacity>
 
-          <Text style={styles.signupText}>
-            Don’t have an account?{" "}
-            <TouchableOpacity onPress={() => router.push("./signup")}>
-              <Text style={styles.signupLink}>Sign Up</Text>
+            {/* Password */}
+            <TextInput
+              placeholder="Password"
+              secureTextEntry
+              placeholderTextColor="#ccc"
+              value={password}
+              onChangeText={setPassword}
+              style={styles.input}
+            />
+
+            <TouchableOpacity>
+              <Text style={styles.forgotText}>Forgot Password ?</Text>
             </TouchableOpacity>
-          </Text>
+
+            {/* Login Button */}
+            <TouchableOpacity
+              style={styles.loginButton}
+              onPress={handleLogin}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.loginText}>LOGIN</Text>
+              )}
+            </TouchableOpacity>
+
+            <Text style={styles.signupText}>
+              Don’t have an account?{" "}
+              <Text
+                style={styles.signupLink}
+                onPress={() => router.push("./signup")}
+              >
+                SignUp
+              </Text>
+            </Text>
+          </View>
         </View>
       </KeyboardAvoidingView>
-    </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  bg: { flex: 1 },
   container: {
     flex: 1,
-    backgroundColor: "#fff",
     alignItems: "center",
-    paddingTop: 100,
+    justifyContent: "center",
+    paddingHorizontal: 20,
   },
   card: {
-    width: "85%",
+    width: "90%",
     backgroundColor: "#8B6FF0",
-    padding: 50,
-    borderRadius: 25,
+    padding: 40,
+    borderRadius: 28,
     shadowColor: "#000",
     shadowOpacity: 0.2,
     shadowRadius: 10,
   },
   title: {
-    fontSize: 32,
+    fontSize: 34,
     fontWeight: "700",
     color: "#fff",
     textAlign: "center",
-    marginBottom: 20,
+    marginBottom: 18,
   },
   toggleContainer: {
     flexDirection: "row",
-    justifyContent: "center",
-    marginBottom: 20,
     backgroundColor: "#a992f3",
     borderRadius: 25,
+    marginBottom: 18,
+    alignSelf: "center",
   },
   toggleButton: {
     paddingVertical: 8,
-    paddingHorizontal: 25,
+    paddingHorizontal: 28,
     borderRadius: 25,
   },
-  toggleText: {
-    color: "#fff",
-    fontWeight: "600",
-  },
-  activeToggle: {
-    backgroundColor: "#4EE1C1",
-  },
-  activeText: {
-    color: "#333",
-  },
+  toggleText: { color: "#fff", fontWeight: "600" },
+  activeToggle: { backgroundColor: "#4EE1C1" },
+  activeText: { color: "#333" },
   input: {
     backgroundColor: "#b9a7f7",
     borderRadius: 10,
     paddingHorizontal: 15,
-    paddingVertical: 10,
+    paddingVertical: 12,
     color: "#fff",
-    marginBottom: 15,
+    marginBottom: 14,
   },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  countryPicker: {
-    width: 80,
-    marginRight: 8,
-    backgroundColor: "#b9a7f7",
-    borderRadius: 10,
-    justifyContent: "center",
-    paddingLeft: 5,
-  },
+  row: { flexDirection: "row", alignItems: "center", marginBottom: 14 },
   forgotText: {
     textAlign: "right",
     color: "#eee",
     fontSize: 12,
-    marginBottom: 15,
+    marginBottom: 14,
   },
   loginButton: {
     backgroundColor: "#4EE1C1",
@@ -269,16 +260,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 10,
   },
-  loginText: {
-    color: "#333",
-    fontWeight: "bold",
-  },
-  signupText: {
-    textAlign: "center",
-    color: "#fff",
-  },
-  signupLink: {
-    color: "#4EE1C1",
-    fontWeight: "bold",
-  },
+  loginText: { color: "#333", fontWeight: "bold" },
+  signupText: { textAlign: "center", color: "#fff" },
+  signupLink: { color: "#4EE1C1", fontWeight: "bold" },
 });
