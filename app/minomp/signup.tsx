@@ -4,6 +4,7 @@ import { Formik } from "formik";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
+  Image,
   ImageBackground,
   KeyboardAvoidingView,
   Platform,
@@ -40,7 +41,7 @@ export default function SignupScreen() {
     },
     select: (response) =>
       response?.data?.map((item: CountryCode) => ({
-        label: `${item.country_code} ${item.country_name}`,
+        label: `${item.country_code}`,
         value: item.id,
       })) || [],
   });
@@ -75,7 +76,11 @@ export default function SignupScreen() {
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         <View style={styles.card}>
-          <Text style={styles.title}>Signup</Text>
+          <Image
+            source={require("../../assets/SignupTextImage.png")}
+            style={styles.signupImage}
+            resizeMode="contain"
+          />
 
           {/* Toggle */}
           <View style={styles.toggleContainer}>
@@ -86,14 +91,7 @@ export default function SignupScreen() {
               ]}
               onPress={() => setSignupType("mobile")}
             >
-              <Text
-                style={[
-                  styles.toggleText,
-                  signupType === "mobile" && styles.toggleTextActive,
-                ]}
-              >
-                Mobile
-              </Text>
+              <Text style={styles.toggleText}>Mobile</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -103,14 +101,7 @@ export default function SignupScreen() {
               ]}
               onPress={() => setSignupType("email")}
             >
-              <Text
-                style={[
-                  styles.toggleText,
-                  signupType === "email" && styles.toggleTextActive,
-                ]}
-              >
-                Email
-              </Text>
+              <Text style={styles.toggleText}>Email</Text>
             </TouchableOpacity>
           </View>
 
@@ -186,6 +177,24 @@ export default function SignupScreen() {
                           setOpen={setOpen}
                           setValue={setSelectedCode}
                           placeholder="+91"
+                          placeholderStyle={{
+                            color: "#fff",
+                            fontWeight: "500",
+                          }}
+                          labelStyle={{ color: "#fff" }}
+                          selectedItemLabelStyle={{ color: "#fff" }}
+                          arrowIconStyle={{ width: 14, height: 8 }}
+                          ArrowDownIconComponent={() => (
+                            <Image
+                              source={require("../../assets/dropdownarrow.png")}
+                              style={{
+                                width: 14,
+                                height: 8,
+                                tintColor: "#fff",
+                              }}
+                              resizeMode="contain"
+                            />
+                          )}
                           style={styles.codePicker}
                           dropDownContainerStyle={styles.codeDropdown}
                           listItemLabelStyle={{ color: "#fff" }}
@@ -194,7 +203,7 @@ export default function SignupScreen() {
                       </View>
 
                       <TextInput
-                        style={[styles.input, { flex: 1, marginLeft: 8 }]}
+                        style={[styles.mobileInput, { flex: 1, marginLeft: 8 }]}
                         placeholder="Mobile"
                         placeholderTextColor="#fff"
                         value={values.mobileno}
@@ -242,7 +251,7 @@ export default function SignupScreen() {
                   {isLoading ? (
                     <ActivityIndicator color="#fff" />
                   ) : (
-                    <Text style={styles.signupBtnText}>NEXT</Text>
+                    <Text style={styles.signupBtnText}>SIGNUP</Text>
                   )}
                 </TouchableOpacity>
               </>
@@ -269,11 +278,22 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 32,
-    fontWeight: "700",
-    color: "#fff",
+    width: 135,
+    height: 48,
+    color: "#000", // text color inside the white box
+    backgroundColor: "#FFFFFF",
+    borderWidth: 3,
+    borderColor: "#40E0D0",
+    borderRadius: 10,
     textAlign: "center",
-    marginBottom: 18,
+    textAlignVertical: "center",
+    fontFamily: "Fredoka_700Bold", // make sure Fredoka is loaded via expo-google-fonts or similar
+    fontWeight: "700",
+    fontSize: 40,
+    lineHeight: 48,
+    letterSpacing: 0.07 * 40, // roughly 7% of font size
+    overflow: "hidden",
+    alignSelf: "center",
   },
 
   toggleContainer: {
@@ -281,6 +301,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 25,
     marginBottom: 20,
+    width: 165,
+    height: 36,
+    alignSelf: "center",
   },
 
   toggleButton: {
@@ -290,52 +313,77 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
-  toggleButtonActive: { backgroundColor: "#00EAD3" },
+  toggleButtonActive: {
+    width: 83,
+    height: 36,
+    backgroundColor: "#40E0D0", // turquoise fill
+    borderRadius: 45,
+    borderWidth: 1,
+    borderColor: "#4D4264",
+    alignItems: "center",
+    justifyContent: "center",
+    opacity: 1,
+  },
 
-  toggleText: { color: "#000", fontWeight: "bold" },
+  toggleText: {
+    width: 49,
+    height: 19,
+    color: "#6C5B8F",
+    fontFamily: "Fredoka_500Medium", // ensure this is loaded via expo-google-fonts
+    fontWeight: "500",
+    fontSize: 16,
+    lineHeight: 16, // matches 100% line height
+    letterSpacing: 0,
+    textAlign: "center",
+    opacity: 1,
+    // marginTop: 9, // positions the text visually per Figma 'top: 9px'
+    // marginLeft: 17, // aligns it per 'left: 17px'
+  },
 
   toggleTextActive: { color: "#fff" },
 
   input: {
-    backgroundColor: "#C08FFF",
-    borderRadius: 10,
-    padding: 12,
+    width: 257,
+    height: 41,
+    backgroundColor: "#FFFFFF66", // 40% opacity white (#FFFFFF66)
+    borderBottomWidth: 1,
+    borderBottomColor: "#4D4264",
+    borderRadius: 7,
     color: "#fff",
-    marginVertical: 5,
+    paddingHorizontal: 12,
+    marginVertical: 6,
+    fontFamily: "Fredoka_400Regular", // optional, for design consistency
+    fontSize: 14,
   },
 
-  row: { flexDirection: "row", alignItems: "center", width: "100%" },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
+    marginVertical: 5,
+  },
 
   dropdown: {
     backgroundColor: "#C08FFF",
     borderColor: "#C08FFF",
     borderRadius: 10,
-    height: 50,
+    height: 41,
   },
 
   dropdownContainer: {
     backgroundColor: "#C08FFF",
     borderColor: "#C08FFF",
-    marginTop: 4,
+    marginTop: 5,
     zIndex: 1000,
   },
 
-  signupButton: {
-    backgroundColor: "#00EAD3",
-    borderRadius: 12,
-    paddingVertical: 12,
-    marginTop: 16,
-    alignItems: "center",
-  },
-
-  signupBtnText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
-
-  errorText: { color: "red", fontSize: 12, marginBottom: 4 },
   codePicker: {
     backgroundColor: "#C08FFF",
     borderColor: "#C08FFF",
     borderRadius: 10,
-    height: 50,
+    height: 41,
+    justifyContent: "center",
+    paddingLeft: 8,
   },
 
   codeDropdown: {
@@ -343,5 +391,49 @@ const styles = StyleSheet.create({
     borderColor: "#C08FFF",
     borderRadius: 10,
     zIndex: 2000,
+  },
+
+  mobileInput: {
+    flex: 1,
+    height: 41,
+    backgroundColor: "#C08FFF",
+    borderColor: "#C08FFF",
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    color: "#fff",
+  },
+
+  signupButton: {
+    width: 146,
+    height: 43, // matches 43.1538, rounded for RN
+    backgroundColor: "#00EAD3",
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 16,
+    alignSelf: "center", // centers horizontally like in Figma
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25, // roughly 40% (0x40)
+    shadowRadius: 4,
+    elevation: 4, // ✅ required for Android shadow
+  },
+
+  signupBtnText: {
+    color: "#6C5B8F",
+    fontFamily: "Fredoka_700Bold", // load via expo-google-fonts if not already
+    fontWeight: "700",
+    fontSize: 16,
+    lineHeight: 16, // 100% of font size
+    letterSpacing: 0.07 * 16, // 7% of font size ≈ 1.12
+    textAlign: "center",
+  },
+
+  errorText: { color: "red", fontSize: 12, marginBottom: 4 },
+  signupImage: {
+    width: 140, // same proportion as your uploaded design
+    height: 44,
+    alignSelf: "center",
+    marginBottom: 18, // keep same spacing as previous text
   },
 });

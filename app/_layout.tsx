@@ -1,3 +1,4 @@
+import { Fredoka_700Bold, useFonts } from "@expo-google-fonts/fredoka";
 import messaging from "@react-native-firebase/messaging";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import * as Device from "expo-device";
@@ -13,6 +14,7 @@ const queryClient = new QueryClient();
 export default function RootLayout() {
   const router = useRouter();
   const [deviceInfo, setDeviceInfo] = useState<any>(null);
+  let [fontsLoaded] = useFonts({ Fredoka_700Bold });
 
   useEffect(() => {
     const getDeviceData = async () => {
@@ -26,6 +28,9 @@ export default function RootLayout() {
       };
       setDeviceInfo(info);
       console.log("Device Info:", info);
+      if (fontsLoaded) {
+        console.log("Font Loaded");
+      }
     };
 
     getDeviceData();
