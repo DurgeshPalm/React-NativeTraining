@@ -5,7 +5,7 @@ import * as Linking from "expo-linking";
 import { Stack, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Alert } from "react-native";
-import { UserProvider } from "../app/store/UserContext";
+import { UserProvider } from "./store/UserContext";
 import { safeStorage } from "./store/storage";
 
 const queryClient = new QueryClient();

@@ -9,7 +9,6 @@ import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import * as Yup from "yup";
 import LoginInput from "../components/LoginInput";
 
-
 const SignupSchema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
   age: Yup.string().required("Please select an age range"),
@@ -21,12 +20,14 @@ const SignupSchema = Yup.object().shape({
     .min(6, "Must be at least 6 characters")
     .matches(/[A-Z]/, "Must contain at least one uppercase letter")
     .matches(/[0-9]/, "Must contain at least one number")
-    .matches(/[!@#$%^&*(),.?":{}|<>]/, "Must contain at least one special character"),
+    .matches(
+      /[!@#$%^&*(),.?":{}|<>]/,
+      "Must contain at least one special character"
+    ),
   confirmPassword: Yup.string()
     .oneOf([Yup.ref("password")], "Passwords must match")
     .required("Confirm password is required"),
 });
-
 
 const initialValues = {
   name: "",
@@ -64,14 +65,23 @@ const Signup = () => {
           resetForm();
         }}
       >
-        {({ handleChange, handleBlur, handleSubmit, setFieldValue, values, errors, touched, resetForm }) => (
+        {({
+          handleChange,
+          handleBlur,
+          handleSubmit,
+          setFieldValue,
+          values,
+          errors,
+          touched,
+          resetForm,
+        }) => (
           <>
             {/* Name */}
             <LoginInput
               placeholder="Name"
               value={values.name}
               onChangeText={handleChange("name")}
-              onBlur={() => handleBlur("name")} 
+              onBlur={() => handleBlur("name")}
               error={touched.name && errors.name ? errors.name : undefined}
               isFocused={nameFocus}
               setIsFocused={setNameFocus}
@@ -81,7 +91,9 @@ const Signup = () => {
             <Picker
               selectedValue={values.age}
               style={styles.picker}
-              onValueChange={(itemValue: string) => setFieldValue("age", itemValue)}
+              onValueChange={(itemValue: string) =>
+                setFieldValue("age", itemValue)
+              }
             >
               <Picker.Item label="Select Age Range" value="" />
               <Picker.Item label="18-25" value="18-25" />
@@ -89,7 +101,9 @@ const Signup = () => {
               <Picker.Item label="36-45" value="36-45" />
               <Picker.Item label="46+" value="46+" />
             </Picker>
-            {touched.age && errors.age && <Text style={styles.error}>{errors.age}</Text>}
+            {touched.age && errors.age && (
+              <Text style={styles.error}>{errors.age}</Text>
+            )}
 
             {/* Gender Radio */}
             <View style={styles.radioGroup}>
@@ -99,12 +113,19 @@ const Signup = () => {
                   style={styles.radioOption}
                   onPress={() => setFieldValue("gender", option)}
                 >
-                  <View style={[styles.radioCircle, values.gender === option && styles.selected]} />
+                  <View
+                    style={[
+                      styles.radioCircle,
+                      values.gender === option && styles.selected,
+                    ]}
+                  />
                   <Text style={styles.radioLabel}>{option}</Text>
                 </TouchableOpacity>
               ))}
             </View>
-            {touched.gender && errors.gender && <Text style={styles.error}>{errors.gender}</Text>}
+            {touched.gender && errors.gender && (
+              <Text style={styles.error}>{errors.gender}</Text>
+            )}
 
             {/* Terms & Conditions */}
             <View style={styles.checkboxContainer}>
@@ -113,16 +134,20 @@ const Signup = () => {
                 onValueChange={(newValue) => setFieldValue("terms", newValue)}
                 color={values.terms ? "#4cd137" : undefined}
               />
-              <Text style={styles.checkboxLabel}>I accept Terms & Conditions</Text>
+              <Text style={styles.checkboxLabel}>
+                I accept Terms & Conditions
+              </Text>
             </View>
-            {touched.terms && errors.terms && <Text style={styles.error}>{errors.terms}</Text>}
+            {touched.terms && errors.terms && (
+              <Text style={styles.error}>{errors.terms}</Text>
+            )}
 
             {/* Email */}
             <LoginInput
               placeholder="Email"
               value={values.email}
               onChangeText={handleChange("email")}
-              onBlur={() =>handleBlur("email")}
+              onBlur={() => handleBlur("email")}
               error={touched.email && errors.email ? errors.email : undefined}
               isFocused={emailFocus}
               setIsFocused={setEmailFocus}
@@ -134,13 +159,23 @@ const Signup = () => {
               secureTextEntry={!showPassword}
               value={values.password}
               onChangeText={handleChange("password")}
-              onBlur={()=> handleBlur("password")}
-              error={touched.password && errors.password ? errors.password : undefined}
+              onBlur={() => handleBlur("password")}
+              error={
+                touched.password && errors.password
+                  ? errors.password
+                  : undefined
+              }
               isFocused={passwordFocus}
               setIsFocused={setPasswordFocus}
               rightIcon={
-                <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                  <Ionicons name={showPassword ? "eye" : "eye-off"} size={20} color="gray" />
+                <TouchableOpacity
+                  onPress={() => setShowPassword(!showPassword)}
+                >
+                  <Ionicons
+                    name={showPassword ? "eye" : "eye-off"}
+                    size={20}
+                    color="gray"
+                  />
                 </TouchableOpacity>
               }
             />
@@ -151,19 +186,32 @@ const Signup = () => {
               secureTextEntry={!showConfirmPassword}
               value={values.confirmPassword}
               onChangeText={handleChange("confirmPassword")}
-              onBlur={()=>handleBlur("confirmPassword")}
-              error={touched.confirmPassword && errors.confirmPassword ? errors.confirmPassword : undefined}
+              onBlur={() => handleBlur("confirmPassword")}
+              error={
+                touched.confirmPassword && errors.confirmPassword
+                  ? errors.confirmPassword
+                  : undefined
+              }
               isFocused={confirmPasswordFocus}
               setIsFocused={setConfirmPasswordFocus}
               rightIcon={
-                <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
-                  <Ionicons name={showConfirmPassword ? "eye" : "eye-off"} size={20} color="gray" />
+                <TouchableOpacity
+                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  <Ionicons
+                    name={showConfirmPassword ? "eye" : "eye-off"}
+                    size={20}
+                    color="gray"
+                  />
                 </TouchableOpacity>
               }
             />
 
             {/* Submit */}
-            <TouchableOpacity style={styles.button} onPress={() => handleSubmit()}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => handleSubmit()}
+            >
               <Text style={styles.buttonText}>Signup</Text>
             </TouchableOpacity>
 
