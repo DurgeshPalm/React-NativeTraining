@@ -2,6 +2,7 @@ import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Image,
   ImageBackground,
   KeyboardAvoidingView,
   Platform,
@@ -80,7 +81,11 @@ export default function LoginScreen() {
       >
         <View style={styles.container}>
           <View style={styles.card}>
-            <Text style={styles.title}>LogIn</Text>
+            <Image
+              source={require("../../assets/LogInImageminomp.png")}
+              style={styles.loginImage}
+              resizeMode="contain"
+            />
 
             {/* Toggle */}
             <View style={styles.toggleContainer}>
@@ -91,14 +96,7 @@ export default function LoginScreen() {
                 ]}
                 onPress={() => setLoginMode("mobile")}
               >
-                <Text
-                  style={[
-                    styles.toggleText,
-                    loginMode === "mobile" && styles.activeText,
-                  ]}
-                >
-                  Mobile
-                </Text>
+                <Text style={styles.toggleText}>Mobile</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -108,14 +106,7 @@ export default function LoginScreen() {
                 ]}
                 onPress={() => setLoginMode("email")}
               >
-                <Text
-                  style={[
-                    styles.toggleText,
-                    loginMode === "email" && styles.activeText,
-                  ]}
-                >
-                  Email
-                </Text>
+                <Text style={styles.toggleText}>Email</Text>
               </TouchableOpacity>
             </View>
 
@@ -166,7 +157,7 @@ export default function LoginScreen() {
               style={styles.input}
             />
 
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push("./forgotpassword")}>
               <Text style={styles.forgotText}>Forgot Password ?</Text>
             </TouchableOpacity>
 
@@ -203,15 +194,15 @@ const styles = StyleSheet.create({
   bg: { flex: 1 },
   container: {
     flex: 1,
-    alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 20,
+    alignItems: "center",
   },
   card: {
-    width: "90%",
-    backgroundColor: "#8B6FF0",
-    padding: 40,
-    borderRadius: 28,
+    width: "85%",
+    backgroundColor: "#A15CFF",
+    borderRadius: 24,
+    padding: 30,
+    paddingBottom: 35,
     shadowColor: "#000",
     shadowOpacity: 0.2,
     shadowRadius: 10,
@@ -225,42 +216,117 @@ const styles = StyleSheet.create({
   },
   toggleContainer: {
     flexDirection: "row",
-    backgroundColor: "#a992f3",
+    backgroundColor: "#fff",
     borderRadius: 25,
-    marginBottom: 18,
+    marginBottom: 20,
+    width: 165,
+    height: 36,
     alignSelf: "center",
   },
   toggleButton: {
+    flex: 1,
     paddingVertical: 8,
-    paddingHorizontal: 28,
     borderRadius: 25,
+    alignItems: "center",
   },
-  toggleText: { color: "#fff", fontWeight: "600" },
-  activeToggle: { backgroundColor: "#4EE1C1" },
+  toggleText: {
+    width: 49,
+    height: 19,
+    color: "#6C5B8F",
+    fontFamily: "Fredoka_500Medium", // ensure this is loaded via expo-google-fonts
+    fontWeight: "500",
+    fontSize: 16,
+    lineHeight: 16, // matches 100% line height
+    letterSpacing: 0,
+    textAlign: "center",
+    opacity: 1,
+  },
+  activeToggle: {
+    width: 83,
+    height: 36,
+    backgroundColor: "#40E0D0", // turquoise fill
+    borderRadius: 45,
+    borderWidth: 1,
+    borderColor: "#4D4264",
+    alignItems: "center",
+    justifyContent: "center",
+    opacity: 1,
+  },
   activeText: { color: "#333" },
+
   input: {
-    backgroundColor: "#b9a7f7",
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
+    width: 257,
+    height: 41,
+    backgroundColor: "#FFFFFF66", // 40% opacity white (#FFFFFF66)
+    borderBottomWidth: 1,
+    borderBottomColor: "#4D4264",
+    borderRadius: 7,
     color: "#fff",
-    marginBottom: 14,
+    paddingHorizontal: 12,
+    marginVertical: 6,
+    fontFamily: "Fredoka_400Regular", // optional, for design consistency
+    fontSize: 14,
   },
   row: { flexDirection: "row", alignItems: "center", marginBottom: 14 },
   forgotText: {
+    width: 108,
+    height: 16,
+    color: "#EEEEEE",
+    fontFamily: "Fredoka_400Regular", // Regular weight
+    fontWeight: "400",
+    fontSize: 13,
+    lineHeight: 13, // 100% line height
+    letterSpacing: 0,
     textAlign: "right",
-    color: "#eee",
-    fontSize: 12,
+    opacity: 1,
+    alignSelf: "flex-end", // aligns to the right within parent container
     marginBottom: 14,
   },
+
   loginButton: {
-    backgroundColor: "#4EE1C1",
-    borderRadius: 10,
-    paddingVertical: 12,
+    width: 146,
+    height: 43, // matches 43.1538, rounded for RN
+    backgroundColor: "#00EAD3",
+    borderRadius: 14,
     alignItems: "center",
-    marginBottom: 10,
+    justifyContent: "center",
+    marginTop: 16,
+    alignSelf: "center", // centers horizontally like in Figma
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25, // roughly 40% (0x40)
+    shadowRadius: 4,
+    elevation: 4, // ✅ required for Android shadow
   },
   loginText: { color: "#333", fontWeight: "bold" },
-  signupText: { textAlign: "center", color: "#fff" },
-  signupLink: { color: "#4EE1C1", fontWeight: "bold" },
+  signupText: {
+    width: 184,
+    height: 16,
+    color: "#FFFFFF",
+    fontFamily: "Fredoka_400Regular", // Regular weight
+    fontWeight: "400",
+    fontSize: 13,
+    lineHeight: 13, // 100%
+    letterSpacing: 0,
+    textAlign: "center",
+    opacity: 1,
+    alignSelf: "center", // centers text horizontally
+    marginTop: 10, // optional: adds a bit of vertical spacing
+  },
+
+  signupLink: {
+    color: "#4EE1C1",
+    fontFamily: "Fredoka_400Regular",
+    fontWeight: "400",
+    fontSize: 13,
+    lineHeight: 13,
+    letterSpacing: 0,
+  },
+
+  loginImage: {
+    width: 140, // same proportion as your uploaded design
+    height: 44,
+    alignSelf: "center",
+    marginBottom: 18, // keep same spacing as previous text
+  },
 });

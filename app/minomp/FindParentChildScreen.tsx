@@ -116,7 +116,7 @@ export default function FindParentChildScreen() {
         </TouchableOpacity>
 
         <Text style={styles.title}>
-          {role === "C" ? "FIND PARENT" : "FIND CHILD"}
+          {role === "C" ? "FIND PARENT" : "FIND KID"}
         </Text>
 
         {/* Search Input */}
@@ -167,7 +167,7 @@ export default function FindParentChildScreen() {
             disabled={!foundUser || isLoading}
           >
             <Text style={styles.connectText}>
-              CONNECT WITH {role === "C" ? "PARENT" : "CHILD"}
+              CONNECT WITH {role === "C" ? "PARENT" : "KID"}
             </Text>
           </TouchableOpacity>
         </View>
