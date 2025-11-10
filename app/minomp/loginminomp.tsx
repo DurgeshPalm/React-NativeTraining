@@ -57,7 +57,8 @@ export default function LoginScreen() {
       if (token) {
         safeStorage.set("token", token);
         alert("Login successful!");
-        router.replace("/");
+        // router.replace("/");
+        router.replace("./DashboardScreen");
       } else {
         alert("Something went wrong!");
       }
@@ -131,7 +132,7 @@ export default function LoginScreen() {
                   setOpen={setPickerOpen}
                   setValue={setCountryCodeId}
                   setItems={setCountryCodeList}
-                  placeholder="+91"
+                  placeholder="code"
                   containerStyle={{ width: 80 }}
                   style={{ backgroundColor: "#b9a7f7" }}
                 />

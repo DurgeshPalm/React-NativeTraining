@@ -154,7 +154,7 @@ export default function ForgotPasswordScreen() {
                   items={countryCodes}
                   setOpen={setOpen}
                   setValue={setSelectedCode}
-                  placeholder={isLoadingCodes ? "..." : "+91"}
+                  placeholder={isLoadingCodes ? "..." : "code"}
                   placeholderStyle={{ color: "#fff", fontWeight: "500" }}
                   labelStyle={{ color: "#fff" }}
                   selectedItemLabelStyle={{ color: "#fff" }}
@@ -262,15 +262,15 @@ const styles = StyleSheet.create({
   codePicker: {
     height: 41,
     backgroundColor: "#FFFFFF66",
-    borderBottomWidth: 1,
+    // borderBottomWidth: 1,
     borderBottomColor: "#4D4264",
-    borderRadius: 7,
+    // borderRadius: 7,
     justifyContent: "center",
   },
   codeDropdown: {
     backgroundColor: "#C08FFF",
     borderColor: "#C08FFF",
-    borderRadius: 7,
+    // borderRadius: 7,
   },
   sendButton: {
     width: 146,
