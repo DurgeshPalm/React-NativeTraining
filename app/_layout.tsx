@@ -6,6 +6,7 @@ import * as Linking from "expo-linking";
 import { Stack, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Alert } from "react-native";
+import { RootSiblingParent } from "react-native-root-siblings";
 import { UserProvider } from "./store/UserContext";
 import { safeStorage } from "./store/storage";
 
@@ -121,12 +122,14 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <UserProvider>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(home)" />
-        </Stack>
-      </UserProvider>
-    </QueryClientProvider>
+    <RootSiblingParent>
+      <QueryClientProvider client={queryClient}>
+        <UserProvider>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(home)" />
+          </Stack>
+        </UserProvider>
+      </QueryClientProvider>
+    </RootSiblingParent>
   );
 }
