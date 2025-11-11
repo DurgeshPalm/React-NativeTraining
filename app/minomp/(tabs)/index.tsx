@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import Toast from "react-native-root-toast";
-import api from "../fetchapi";
+import api from "../../fetchapi";
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -118,7 +118,7 @@ export default function DashboardScreen() {
 
   return (
     <ImageBackground
-      source={require("../../assets/minompback.png")}
+      source={require("../../../assets/minompback.png")}
       style={{ flex: 1 }}
       resizeMode="cover"
       imageStyle={{ opacity: 0.06 }}
@@ -128,7 +128,7 @@ export default function DashboardScreen() {
 
         {/* ✅ Minomp Logo above card */}
         <Image
-          source={require("../../assets/Dashboardlogo.png")}
+          source={require("../../../assets/Dashboardlogo.png")}
           style={styles.minompLogo}
           resizeMode="contain"
         />
@@ -136,7 +136,7 @@ export default function DashboardScreen() {
         <View style={styles.card}>
           {/* ✅ Proposal Label Image */}
           <Image
-            source={require("../../assets/Proposal.png")}
+            source={require("../../../assets/Proposal.png")}
             style={styles.sectionImage}
             resizeMode="contain"
           />
@@ -212,7 +212,7 @@ export default function DashboardScreen() {
 
           {/* ✅ Reward Label Image */}
           <Image
-            source={require("../../assets/Reward.png")}
+            source={require("../../../assets/Reward.png")}
             style={[styles.sectionImage, { alignSelf: "flex-start" }]}
             resizeMode="contain"
           />

@@ -58,7 +58,8 @@ export default function LoginScreen() {
         safeStorage.set("token", token);
         alert("Login successful!");
         // router.replace("/");
-        router.replace("./DashboardScreen");
+        // router.replace("./DashboardScreen");
+        router.replace("/minomp/(tabs)");
       } else {
         alert("Something went wrong!");
       }

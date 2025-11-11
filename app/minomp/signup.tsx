@@ -254,6 +254,16 @@ export default function SignupScreen() {
                     <Text style={styles.signupBtnText}>SIGNUP</Text>
                   )}
                 </TouchableOpacity>
+
+                <Text style={styles.loginText}>
+                  Already have an account ?{" "}
+                  <Text
+                    style={styles.loginLink}
+                    onPress={() => router.push("./loginminomp")}
+                  >
+                    Login
+                  </Text>
+                </Text>
               </>
             )}
           </Formik>
@@ -435,5 +445,27 @@ const styles = StyleSheet.create({
     height: 44,
     alignSelf: "center",
     marginBottom: 18, // keep same spacing as previous text
+  },
+  loginText: {
+    width: 184,
+    height: 16,
+    color: "#FFFFFF",
+    fontFamily: "Fredoka_400Regular", // Regular weight
+    fontWeight: "400",
+    fontSize: 13,
+    lineHeight: 13, // 100%
+    letterSpacing: 0,
+    textAlign: "center",
+    opacity: 1,
+    alignSelf: "center", // centers text horizontally
+    marginTop: 10, // optional: adds a bit of vertical spacing
+  },
+  loginLink: {
+    color: "#4EE1C1",
+    fontFamily: "Fredoka_400Regular",
+    fontWeight: "400",
+    fontSize: 13,
+    lineHeight: 13,
+    letterSpacing: 0,
   },
 });
