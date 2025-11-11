@@ -1,3 +1,4 @@
+import { safeStorage } from "@/app/store/storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -24,9 +25,9 @@ export default function DashboardScreen() {
 
   const [openReward, setOpenReward] = useState(false);
   const [selectedReward, setSelectedReward] = useState<number | null>(null);
-  const [rewardItems, setRewardItems] = useState([]);
+  const [rewardItems, setRewardItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [userId] = useState(30);
+  const userId = safeStorage.getString("userid");
 
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
@@ -38,12 +39,12 @@ export default function DashboardScreen() {
       try {
         const res = await api.get(`/proposals/getRewards?userid=${userId}`);
         if (res.data?.resp_code === "000") {
-          const mapped = res.data.rewards.map((r: any, idx: number) => ({
+          const mapped = res.data.rewards.map((r: any) => ({
             label: r.reward_name,
-            value: idx + 1,
+            value: r.id, // ✅ Use actual reward ID from backend
             icon: () => (
               <Image
-                source={{ uri: r.reward_icon }}
+                source={require("../../../assets/Ice Cream png 1.png")}
                 style={{ width: 20, height: 20 }}
               />
             ),
@@ -63,8 +64,18 @@ export default function DashboardScreen() {
 
   // ✅ Formatters
   const formatTime = (date: Date) =>
-    date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  const formatDate = (date: Date) => date.toLocaleDateString("en-GB");
+    date.toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+  const formatDate = (date: Date) => {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    return `${year}-${month}-${day}`;
+  };
 
   // ✅ Handle Create Proposal
   const handleCreateProposal = async () => {
@@ -76,22 +87,28 @@ export default function DashboardScreen() {
       return;
     }
 
-    const start_datetime = `${date} ${startTime}`;
-    const end_datetime = `${date} ${endTime}`;
+    // 🕒 Convert to "YYYY-MM-DD HH:mm:ss" format
+    const start_datetime = `${date} ${startTime}:00`;
+    const end_datetime = `${date} ${endTime}:00`;
 
     const payload = {
-      proposal_name: "Daily Minomp",
+      proposal_name: "Study Time",
       reward_id: selectedReward,
+      reward_name: "",
       start_datetime,
       end_datetime,
-      userid: userId,
+      userid: Number(userId),
       status: "pending",
     };
+
+    console.log("🟢 Create Proposal Payload:", payload);
 
     try {
       setLoading(true);
       const res = await api.post("/proposals/create", payload);
       const data = res.data;
+
+      console.log("🟣 Create Proposal Response:", data);
 
       if (data?.resp_code === "000") {
         Toast.show("Proposal created successfully!", {
@@ -105,8 +122,8 @@ export default function DashboardScreen() {
           backgroundColor: "#FF6B6B",
         });
       }
-    } catch (error) {
-      console.error("Create Proposal Error:", error);
+    } catch (error: any) {
+      console.error("Create Proposal Error:", error.response?.data || error);
       Toast.show("Something went wrong!", {
         position: Toast.positions.TOP,
         backgroundColor: "#FF6B6B",
@@ -161,7 +178,9 @@ export default function DashboardScreen() {
               style={[styles.inputBox, { width: 110 }]}
               onPress={() => setShowDatePicker(true)}
             >
-              <Text style={styles.inputText}>{date || "dd/mm/yyyy"}</Text>
+              <Text style={styles.inputText}>
+                {date ? date.split("-").reverse().join("/") : "dd/mm/yyyy"}
+              </Text>
             </TouchableOpacity>
           </View>
 
@@ -247,25 +266,22 @@ export default function DashboardScreen() {
   );
 }
 
+// ⚙️ Styles remain unchanged
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: "center", alignItems: "center" },
   dashboardTitle: {
     fontSize: 25,
-    fontFamily: "Fredoka_600SemiBold", // SemiBold variant
-    color: "#4D4264", // dark purple from design
+    fontFamily: "Fredoka_600SemiBold",
+    color: "#4D4264",
     textTransform: "uppercase",
-    letterSpacing: 1.75, // ~7% of 25px font
-    lineHeight: 25, // 100%
+    letterSpacing: 1.75,
+    lineHeight: 25,
     marginTop: 20,
     marginBottom: 12,
     textAlign: "center",
+    fontWeight: "600",
   },
-
-  minompLogo: {
-    width: 180,
-    height: 60,
-    marginBottom: 10,
-  },
+  minompLogo: { width: 180, height: 60, marginBottom: 10 },
   card: {
     width: "85%",
     backgroundColor: "#A15CFF",
@@ -327,10 +343,7 @@ const styles = StyleSheet.create({
     width: "100%",
     marginVertical: 10,
   },
-  dropdownContainer: {
-    borderColor: "#A15CFF",
-    borderRadius: 8,
-  },
+  dropdownContainer: { borderColor: "#A15CFF", borderRadius: 8 },
   button: {
     width: 180,
     height: 45,

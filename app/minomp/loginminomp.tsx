@@ -56,15 +56,20 @@ export default function LoginScreen() {
 
       if (token) {
         safeStorage.set("token", token);
+        safeStorage.set("role", res.data?.data[0]?.role);
+        safeStorage.set("userid", res.data?.data[0]?.id.toString());
         alert("Login successful!");
         // router.replace("/");
         // router.replace("./DashboardScreen");
+        // console.log(res.data.data[0].id);
+
         router.replace("/minomp/(tabs)");
       } else {
         alert("Something went wrong!");
       }
     } catch (error) {
       alert("Login failed. Check credentials.");
+      // console.log(error);
     } finally {
       setLoading(false);
     }
