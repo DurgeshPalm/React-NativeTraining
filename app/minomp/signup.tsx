@@ -126,7 +126,7 @@ export default function SignupScreen() {
                 signupType,
               };
               setSignupData(payload);
-              router.push("./selectrole");
+              router.replace("./selectrole");
               resetForm();
             }}
           >

@@ -23,7 +23,7 @@ export default function SelectRoleScreen() {
       return;
     }
     setSignupData({ role: selectedRole });
-    router.push("./FindParentChildScreen");
+    router.replace("./FindParentChildScreen");
   };
 
   return (

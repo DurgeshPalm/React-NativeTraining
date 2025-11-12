@@ -1,3 +1,4 @@
+import { safeStorage } from "@/app/store/storage";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -60,6 +61,13 @@ export default function SettingsScreen() {
     },
   ];
 
+  const handleLogoutConfirm = () => {
+    // Add logout logic here
+    safeStorage.clear();
+    router.replace("/minomp/loginminomp");
+    setLogoutVisible(false);
+  };
+
   return (
     <ImageBackground
       source={require("../../../../assets/minompback.png")}
@@ -115,10 +123,7 @@ export default function SettingsScreen() {
                 </Pressable>
                 <Pressable
                   style={[styles.modalBtn, styles.yesBtn]}
-                  onPress={() => {
-                    setLogoutVisible(false);
-                    // Add logout logic here
-                  }}
+                  onPress={handleLogoutConfirm}
                 >
                   <Text style={styles.modalBtnText}>YES</Text>
                 </Pressable>

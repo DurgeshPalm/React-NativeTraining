@@ -97,7 +97,7 @@ export default function FindParentChildScreen() {
 
   const handleCreateUser = (connectionid: string) => {
     createUserMutation.mutate(connectionid);
-    router.push("./loginminomp");
+    router.replace("./loginminomp");
   };
 
   const isLoading = findUserMutation.isPending || createUserMutation.isPending;
