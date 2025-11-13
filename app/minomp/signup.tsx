@@ -168,8 +168,8 @@ export default function SignupScreen() {
                   </>
                 ) : (
                   <>
-                    <View style={styles.row}>
-                      <View style={{ width: 90 }}>
+                    <View style={[styles.row]}>
+                      <View style={{ width: 90, height: 41 }}>
                         <DropDownPicker
                           open={open}
                           value={selectedCode}
@@ -195,7 +195,7 @@ export default function SignupScreen() {
                               resizeMode="contain"
                             />
                           )}
-                          style={styles.codePicker}
+                          style={[styles.codePicker]}
                           dropDownContainerStyle={styles.codeDropdown}
                           listItemLabelStyle={{ color: "#fff" }}
                           zIndex={2000}
@@ -203,7 +203,10 @@ export default function SignupScreen() {
                       </View>
 
                       <TextInput
-                        style={[styles.mobileInput, { flex: 1, marginLeft: 8 }]}
+                        style={[
+                          styles.mobileInput,
+                          { flex: 1, marginLeft: -15 },
+                        ]}
                         placeholder="Mobile"
                         placeholderTextColor="#fff"
                         value={values.mobileno}
@@ -369,48 +372,57 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     alignItems: "center",
-    width: "100%",
-    marginVertical: 5,
+    // width: "100%",
+    marginVertical: 6,
+    width: 257,
+    height: 41,
   },
 
   dropdown: {
     backgroundColor: "#C08FFF",
     borderColor: "#C08FFF",
     borderRadius: 10,
-    height: 41,
+    // height: 41,
   },
 
   dropdownContainer: {
     backgroundColor: "#C08FFF",
     borderColor: "#C08FFF",
     marginTop: 5,
-    zIndex: 1000,
+    // zIndex: 1000,
   },
 
   codePicker: {
     backgroundColor: "#C08FFF",
     borderColor: "#C08FFF",
     borderRadius: 10,
-    height: 41,
+    minHeight: 41,
+    width: "80%",
     justifyContent: "center",
     paddingLeft: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "#4D4264",
   },
 
   codeDropdown: {
     backgroundColor: "#C08FFF",
     borderColor: "#C08FFF",
     borderRadius: 10,
-    zIndex: 2000,
+    width: "80%",
+    // zIndex: 2000,
   },
 
   mobileInput: {
     flex: 1,
     height: 41,
+    // width: 400,
     backgroundColor: "#C08FFF",
     borderColor: "#C08FFF",
     borderRadius: 10,
     paddingHorizontal: 12,
     color: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#4D4264",
   },
 
   signupButton: {

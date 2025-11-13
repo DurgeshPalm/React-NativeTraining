@@ -147,25 +147,41 @@ export default function ForgotPasswordScreen() {
           {/* Input Fields */}
           {forgotType === "mobile" ? (
             <View style={styles.row}>
-              <View style={{ width: 80, zIndex: 2000 }}>
+              <View style={{ width: 90, height: 41 }}>
                 <DropDownPicker
                   open={open}
                   value={selectedCode}
                   items={countryCodes}
                   setOpen={setOpen}
                   setValue={setSelectedCode}
-                  placeholder={isLoadingCodes ? "..." : "code"}
-                  placeholderStyle={{ color: "#fff", fontWeight: "500" }}
+                  placeholder="+91"
+                  placeholderStyle={{
+                    color: "#fff",
+                    fontWeight: "500",
+                  }}
                   labelStyle={{ color: "#fff" }}
                   selectedItemLabelStyle={{ color: "#fff" }}
-                  style={styles.codePicker}
+                  arrowIconStyle={{ width: 14, height: 8 }}
+                  ArrowDownIconComponent={() => (
+                    <Image
+                      source={require("../../assets/dropdownarrow.png")}
+                      style={{
+                        width: 14,
+                        height: 8,
+                        tintColor: "#fff",
+                      }}
+                      resizeMode="contain"
+                    />
+                  )}
+                  style={[styles.codePicker]}
                   dropDownContainerStyle={styles.codeDropdown}
+                  listItemLabelStyle={{ color: "#fff" }}
                   zIndex={2000}
                 />
               </View>
 
               <TextInput
-                style={[styles.input, { flex: 1, marginLeft: 8 }]}
+                style={[styles.mobileInput, { flex: 1, marginLeft: -15 }]}
                 placeholder="Mobile"
                 placeholderTextColor="#fff"
                 keyboardType="numeric"
@@ -245,7 +261,14 @@ const styles = StyleSheet.create({
     color: "#6C5B8F",
     textAlign: "center",
   },
-  row: { flexDirection: "row", alignItems: "center", width: "100%" },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    // width: "100%",
+    marginVertical: 6,
+    width: 257,
+    height: 41,
+  },
   input: {
     width: 257,
     height: 41,
@@ -260,18 +283,25 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   codePicker: {
-    height: 41,
-    backgroundColor: "#FFFFFF66",
-    // borderBottomWidth: 1,
-    borderBottomColor: "#4D4264",
-    // borderRadius: 7,
+    backgroundColor: "#C08FFF",
+    borderColor: "#C08FFF",
+    borderRadius: 10,
+    minHeight: 41,
+    width: "80%",
     justifyContent: "center",
+    paddingLeft: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "#4D4264",
   },
+
   codeDropdown: {
     backgroundColor: "#C08FFF",
     borderColor: "#C08FFF",
-    // borderRadius: 7,
+    borderRadius: 10,
+    width: "80%",
+    // zIndex: 2000,
   },
+
   sendButton: {
     width: 146,
     height: 43,
@@ -286,5 +316,18 @@ const styles = StyleSheet.create({
     fontFamily: "Fredoka_700Bold",
     fontSize: 16,
     letterSpacing: 1,
+  },
+
+  mobileInput: {
+    flex: 1,
+    height: 41,
+    // width: 400,
+    backgroundColor: "#C08FFF",
+    borderColor: "#C08FFF",
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    color: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#4D4264",
   },
 });

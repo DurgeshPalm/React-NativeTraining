@@ -128,28 +128,51 @@ export default function LoginScreen() {
               />
             ) : (
               <View style={styles.row}>
-                <DropDownPicker
-                  open={pickerOpen}
-                  value={countryCodeId}
-                  items={countryCodeList.map((c) => ({
-                    label: `${c.country_code}`,
-                    value: c.id,
-                  }))}
-                  setOpen={setPickerOpen}
-                  setValue={setCountryCodeId}
-                  setItems={setCountryCodeList}
-                  placeholder="code"
-                  containerStyle={{ width: 80 }}
-                  style={{ backgroundColor: "#b9a7f7" }}
-                />
-
+                <View style={{ width: 90, height: 41 }}>
+                  <DropDownPicker
+                    open={pickerOpen}
+                    value={countryCodeId}
+                    items={countryCodeList.map((c) => ({
+                      label: `${c.country_code}`,
+                      value: c.id,
+                    }))}
+                    setOpen={setPickerOpen}
+                    setValue={setCountryCodeId}
+                    setItems={setCountryCodeList}
+                    placeholder="+91"
+                    placeholderStyle={{
+                      color: "#fff",
+                      fontWeight: "500",
+                    }}
+                    labelStyle={{ color: "#fff" }}
+                    selectedItemLabelStyle={{ color: "#fff" }}
+                    arrowIconStyle={{ width: 14, height: 8 }}
+                    ArrowDownIconComponent={() => (
+                      <Image
+                        source={require("../../assets/dropdownarrow.png")}
+                        style={{
+                          width: 14,
+                          height: 8,
+                          tintColor: "#fff",
+                        }}
+                        resizeMode="contain"
+                      />
+                    )}
+                    containerStyle={{ width: 80 }}
+                    // style={{ backgroundColor: "#FFFFFF66", minHeight: 41 }}
+                    style={[styles.codePicker]}
+                    dropDownContainerStyle={styles.codeDropdown}
+                    listItemLabelStyle={{ color: "#fff" }}
+                    zIndex={2000}
+                  />
+                </View>
                 <TextInput
                   placeholder="Mobile"
                   keyboardType="phone-pad"
                   placeholderTextColor="#ccc"
                   value={mobile}
                   onChangeText={setMobile}
-                  style={[styles.input, { flex: 1, marginLeft: 6 }]}
+                  style={[styles.mobileInput, { flex: 1, marginLeft: -15 }]}
                 />
               </View>
             )}
@@ -274,7 +297,14 @@ const styles = StyleSheet.create({
     fontFamily: "Fredoka_400Regular", // optional, for design consistency
     fontSize: 14,
   },
-  row: { flexDirection: "row", alignItems: "center", marginBottom: 14 },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    // width: "100%",
+    marginVertical: 6,
+    width: 257,
+    height: 41,
+  },
   forgotText: {
     width: 108,
     height: 16,
@@ -335,5 +365,49 @@ const styles = StyleSheet.create({
     height: 44,
     alignSelf: "center",
     marginBottom: 18, // keep same spacing as previous text
+  },
+  mobileInput: {
+    flex: 1,
+    height: 41,
+    backgroundColor: "#C08FFF",
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    color: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#4D4264",
+  },
+
+  dropdown: {
+    backgroundColor: "#C08FFF",
+    borderColor: "#C08FFF",
+    borderRadius: 10,
+    // height: 41,
+  },
+
+  dropdownContainer: {
+    backgroundColor: "#C08FFF",
+    borderColor: "#C08FFF",
+    marginTop: 5,
+    // zIndex: 1000,
+  },
+
+  codePicker: {
+    backgroundColor: "#C08FFF",
+    borderColor: "#C08FFF",
+    borderRadius: 10,
+    minHeight: 41,
+    width: "80%",
+    justifyContent: "center",
+    paddingLeft: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "#4D4264",
+  },
+
+  codeDropdown: {
+    backgroundColor: "#C08FFF",
+    borderColor: "#C08FFF",
+    borderRadius: 10,
+    width: "80%",
+    // zIndex: 2000,
   },
 });
