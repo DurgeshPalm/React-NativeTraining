@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
   dashboardTitle: {
     fontSize: 25,
     fontFamily: "Fredoka_700Bold",
-    color: "#4D4264",
+    color: "#000000",
     textAlign: "center",
     marginBottom: 10,
   },
@@ -345,8 +345,8 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontFamily: "Fredoka_700Bold",
-    fontSize: 18,
-    color: "#4D4264",
+    fontSize: 30,
+    color: "#000000",
     textAlign: "center",
   },
 });

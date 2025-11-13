@@ -23,7 +23,7 @@ export default function SelectRoleScreen() {
       return;
     }
     setSignupData({ role: selectedRole });
-    router.replace("./FindParentChildScreen");
+    router.push("./FindParentChildScreen");
   };
 
   return (
@@ -85,6 +85,7 @@ export default function SelectRoleScreen() {
           <View style={styles.radioGroup}>
             {/* Kid Option */}
             <View style={styles.radioOption}>
+              <Text style={styles.roleText}>Kid</Text>
               <TouchableOpacity
                 onPress={() => setSelectedRole("C")}
                 activeOpacity={0.8}
@@ -94,14 +95,14 @@ export default function SelectRoleScreen() {
                 ]}
               >
                 {selectedRole === "C" && (
-                  <Ionicons name="checkmark" size={14} color="#6C5B8F" />
+                  <Ionicons name="checkmark" size={25} color="#9370DB" />
                 )}
               </TouchableOpacity>
-              <Text style={styles.roleText}>Kid</Text>
             </View>
 
             {/* Parent Option */}
             <View style={styles.radioOption}>
+              <Text style={styles.roleText}>Parent</Text>
               <TouchableOpacity
                 onPress={() => setSelectedRole("P")}
                 activeOpacity={0.8}
@@ -111,10 +112,9 @@ export default function SelectRoleScreen() {
                 ]}
               >
                 {selectedRole === "P" && (
-                  <Ionicons name="checkmark" size={14} color="#6C5B8F" />
+                  <Ionicons name="checkmark" size={25} color="#9370DB" />
                 )}
               </TouchableOpacity>
-              <Text style={styles.roleText}>Parent</Text>
             </View>
           </View>
 
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
 
   imageWrapperSelected: {
     borderColor: "#00EAD3",
-    borderWidth: 3,
+    borderWidth: 5,
   },
 
   roleImage: {
@@ -203,9 +203,9 @@ const styles = StyleSheet.create({
 
   // Base radio circle
   radioCircle: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     borderWidth: 2,
     borderColor: "#FFFFFF",
     backgroundColor: "transparent",
@@ -228,7 +228,8 @@ const styles = StyleSheet.create({
   roleText: {
     color: "#FFFFFF",
     fontFamily: "Fredoka_700Bold",
-    fontSize: 16,
+    fontSize: 25,
+    marginBottom: 20,
   },
 
   nextButton: {

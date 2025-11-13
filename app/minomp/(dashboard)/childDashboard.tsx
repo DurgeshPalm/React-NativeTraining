@@ -20,8 +20,8 @@ export default function DashboardScreen() {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [date, setDate] = useState("");
-  const [duration, setDuration] = useState("8 Hrs");
-  const [minompTime, setMinompTime] = useState("30 min");
+  const [duration, setDuration] = useState("0 min");
+  const [minompTime, setMinompTime] = useState("0 min");
 
   const [openReward, setOpenReward] = useState(false);
   const [selectedReward, setSelectedReward] = useState<number | null>(null);
@@ -33,7 +33,35 @@ export default function DashboardScreen() {
   const [showEndPicker, setShowEndPicker] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  // ✅ Fetch Rewards
+  const calculateDuration = (
+    start: string,
+    end: string,
+    selectedDate: string
+  ) => {
+    if (!start || !end || !selectedDate) return;
+
+    const startDateTime = new Date(`${selectedDate} ${start}:00`);
+    const endDateTime = new Date(`${selectedDate} ${end}:00`);
+
+    let diffMs = endDateTime.getTime() - startDateTime.getTime();
+
+    // If end is next day (ex: 22:00 → 02:00)
+    if (diffMs < 0) diffMs += 24 * 60 * 60 * 1000;
+
+    const totalMinutes = Math.floor(diffMs / 60000);
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+
+    const durationText =
+      (hours ? `${hours} hour${hours > 1 ? "s" : ""}` : "") +
+      (hours && minutes ? " " : "") +
+      (minutes ? `${minutes} min` : hours ? "" : "0 min");
+
+    setDuration(durationText);
+    const minompMinutes = Math.round(totalMinutes * 0.3);
+    setMinompTime(`${minompMinutes} min`);
+  };
+
   useEffect(() => {
     const fetchRewards = async () => {
       try {
@@ -41,7 +69,7 @@ export default function DashboardScreen() {
         if (res.data?.resp_code === "000") {
           const mapped = res.data.rewards.map((r: any) => ({
             label: r.reward_name,
-            value: r.id, // ✅ Use actual reward ID from backend
+            value: r.id,
             icon: () => (
               <Image
                 source={require("../../../assets/Ice Cream png 1.png")}
@@ -62,13 +90,13 @@ export default function DashboardScreen() {
     fetchRewards();
   }, []);
 
-  // ✅ Formatters
   const formatTime = (date: Date) =>
     date.toLocaleTimeString("en-GB", {
       hour: "2-digit",
       minute: "2-digit",
       hour12: false,
     });
+
   const formatDate = (date: Date) => {
     const d = new Date(date);
     const day = String(d.getDate()).padStart(2, "0");
@@ -77,7 +105,6 @@ export default function DashboardScreen() {
     return `${year}-${month}-${day}`;
   };
 
-  // ✅ Handle Create Proposal
   const handleCreateProposal = async () => {
     if (!startTime || !endTime || !date || !selectedReward) {
       Toast.show("Please fill all required fields", {
@@ -87,7 +114,6 @@ export default function DashboardScreen() {
       return;
     }
 
-    // 🕒 Convert to "YYYY-MM-DD HH:mm:ss" format
     const start_datetime = `${date} ${startTime}:00`;
     const end_datetime = `${date} ${endTime}:00`;
 
@@ -101,29 +127,23 @@ export default function DashboardScreen() {
       status: "pending",
     };
 
-    console.log("🟢 Create Proposal Payload:", payload);
-
     try {
       setLoading(true);
       const res = await api.post("/proposals/create", payload);
-      const data = res.data;
 
-      console.log("🟣 Create Proposal Response:", data);
-
-      if (data?.resp_code === "000") {
+      if (res.data?.resp_code === "000") {
         Toast.show("Proposal created successfully!", {
           position: Toast.positions.TOP,
           backgroundColor: "#00EAD3",
           textColor: "#6C5B8F",
         });
       } else {
-        Toast.show(data?.message || "Failed to create proposal", {
+        Toast.show(res.data?.message || "Failed to create proposal", {
           position: Toast.positions.TOP,
           backgroundColor: "#FF6B6B",
         });
       }
     } catch (error: any) {
-      console.error("Create Proposal Error:", error.response?.data || error);
       Toast.show("Something went wrong!", {
         position: Toast.positions.TOP,
         backgroundColor: "#FF6B6B",
@@ -143,7 +163,6 @@ export default function DashboardScreen() {
       <View style={styles.container}>
         <Text style={styles.dashboardTitle}>DASHBOARD</Text>
 
-        {/* ✅ Minomp Logo above card */}
         <Image
           source={require("../../../assets/Dashboardlogo.png")}
           style={styles.minompLogo}
@@ -151,39 +170,51 @@ export default function DashboardScreen() {
         />
 
         <View style={styles.card}>
-          {/* ✅ Proposal Label Image */}
           <Image
             source={require("../../../assets/Proposal.png")}
             style={styles.sectionImage}
             resizeMode="contain"
           />
 
-          {/* Start / End / Date */}
+          {/* ROW 1 — Start / End / Date */}
           <View style={styles.row}>
-            <TouchableOpacity
-              style={styles.inputBox}
-              onPress={() => setShowStartPicker(true)}
-            >
-              <Text style={styles.inputText}>{startTime || "hh : mm"}</Text>
-            </TouchableOpacity>
+            {/* START TIME */}
+            <View style={styles.inputWrapper}>
+              <Text style={styles.inputLabel}>Starts</Text>
+              <TouchableOpacity
+                style={styles.inputBox}
+                onPress={() => setShowStartPicker(true)}
+              >
+                <Text style={styles.inputText}>{startTime || "hh : mm"}</Text>
+              </TouchableOpacity>
+            </View>
 
-            <TouchableOpacity
-              style={styles.inputBox}
-              onPress={() => setShowEndPicker(true)}
-            >
-              <Text style={styles.inputText}>{endTime || "hh : mm"}</Text>
-            </TouchableOpacity>
+            {/* END TIME */}
+            <View style={styles.inputWrapper}>
+              <Text style={styles.inputLabel}>Ends</Text>
+              <TouchableOpacity
+                style={styles.inputBox}
+                onPress={() => setShowEndPicker(true)}
+              >
+                <Text style={styles.inputText}>{endTime || "hh : mm"}</Text>
+              </TouchableOpacity>
+            </View>
 
-            <TouchableOpacity
-              style={[styles.inputBox, { width: 110 }]}
-              onPress={() => setShowDatePicker(true)}
-            >
-              <Text style={styles.inputText}>
-                {date ? date.split("-").reverse().join("/") : "dd/mm/yyyy"}
-              </Text>
-            </TouchableOpacity>
+            {/* DATE */}
+            <View style={[styles.inputWrapper, { width: 110 }]}>
+              <Text style={styles.inputLabel}>Date</Text>
+              <TouchableOpacity
+                style={[styles.inputBox, { width: "100%" }]}
+                onPress={() => setShowDatePicker(true)}
+              >
+                <Text style={styles.inputText}>
+                  {date ? date.split("-").reverse().join("/") : "dd/mm/yyyy"}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
+          {/* Time Pickers */}
           {showStartPicker && (
             <DateTimePicker
               value={new Date()}
@@ -191,10 +222,15 @@ export default function DashboardScreen() {
               is24Hour={false}
               onChange={(e, selectedDate) => {
                 setShowStartPicker(false);
-                if (selectedDate) setStartTime(formatTime(selectedDate));
+                if (selectedDate) {
+                  const newStart = formatTime(selectedDate);
+                  setStartTime(newStart);
+                  calculateDuration(newStart, endTime, date);
+                }
               }}
             />
           )}
+
           {showEndPicker && (
             <DateTimePicker
               value={new Date()}
@@ -202,41 +238,55 @@ export default function DashboardScreen() {
               is24Hour={false}
               onChange={(e, selectedDate) => {
                 setShowEndPicker(false);
-                if (selectedDate) setEndTime(formatTime(selectedDate));
+                if (selectedDate) {
+                  const newEnd = formatTime(selectedDate);
+                  setEndTime(newEnd);
+                  calculateDuration(startTime, newEnd, date);
+                }
               }}
             />
           )}
+
           {showDatePicker && (
             <DateTimePicker
               value={new Date()}
               mode="date"
               onChange={(e, selectedDate) => {
                 setShowDatePicker(false);
-                if (selectedDate) setDate(formatDate(selectedDate));
+                if (selectedDate) {
+                  const newDate = formatDate(selectedDate);
+                  setDate(newDate);
+                  calculateDuration(startTime, endTime, newDate);
+                }
               }}
             />
           )}
 
-          {/* Duration & Minomp Time */}
+          {/* Duration + Minomp Time */}
           <View style={styles.row}>
-            <View style={styles.infoBox}>
+            {/* Duration */}
+            <View style={{ width: "48%" }}>
               <Text style={styles.infoLabel}>Duration</Text>
-              <Text style={styles.infoValue}>{duration}</Text>
+              <View style={styles.infoBox}>
+                <Text style={styles.infoValue}>{duration}</Text>
+              </View>
             </View>
-            <View style={styles.infoBox}>
+
+            {/* Minomp Time */}
+            <View style={{ width: "48%" }}>
               <Text style={styles.infoLabel}>Minomp Time</Text>
-              <Text style={styles.infoValue}>{minompTime}</Text>
+              <View style={styles.infoBox}>
+                <Text style={styles.infoValue}>{minompTime}</Text>
+              </View>
             </View>
           </View>
 
-          {/* ✅ Reward Label Image */}
           <Image
             source={require("../../../assets/Reward.png")}
             style={[styles.sectionImage, { alignSelf: "flex-start" }]}
             resizeMode="contain"
           />
 
-          {/* Reward Dropdown */}
           <DropDownPicker
             open={openReward}
             value={selectedReward}
@@ -248,7 +298,6 @@ export default function DashboardScreen() {
             dropDownContainerStyle={styles.dropdownContainer}
           />
 
-          {/* Button */}
           <TouchableOpacity
             style={[styles.button, loading && { opacity: 0.7 }]}
             onPress={handleCreateProposal}
@@ -266,7 +315,6 @@ export default function DashboardScreen() {
   );
 }
 
-// ⚙️ Styles remain unchanged
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: "center", alignItems: "center" },
   dashboardTitle: {
@@ -319,18 +367,22 @@ const styles = StyleSheet.create({
     color: "#6C5B8F",
     fontSize: 14,
   },
+  infoLabel: {
+    fontFamily: "Fredoka_500Medium",
+    color: "#FFFFFF",
+    fontSize: 14,
+    marginBottom: 5,
+    alignSelf: "center",
+  },
+
   infoBox: {
     backgroundColor: "#FFFFFF",
     borderRadius: 8,
-    width: "48%",
-    padding: 8,
+    width: "100%",
+    paddingVertical: 10,
     alignItems: "center",
   },
-  infoLabel: {
-    fontFamily: "Fredoka_500Medium",
-    color: "#6C5B8F",
-    fontSize: 12,
-  },
+
   infoValue: {
     fontFamily: "Fredoka_700Bold",
     color: "#6C5B8F",
@@ -363,5 +415,16 @@ const styles = StyleSheet.create({
     fontFamily: "Fredoka_700Bold",
     fontSize: 15,
     letterSpacing: 1,
+  },
+  inputWrapper: {
+    width: "30%",
+  },
+
+  inputLabel: {
+    fontFamily: "Fredoka_500Medium",
+    color: "#FFFFFF",
+    fontSize: 14,
+    marginBottom: 5,
+    alignSelf: "center",
   },
 });
